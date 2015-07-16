@@ -1,7 +1,7 @@
 
 
 
- #类型转换和类型提升
+#类型转换和类型提升
 
 
 Julia 可以将数学运算符的参数提升为同一个类型，这些参数的类型曾经在[整数和浮点数](integer-and-floating.md) ，[数学运算和基本函数](operation-function.md)，[类型](type-learning.md)，及[方法](method-learning.md)中提到过。
