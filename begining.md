@@ -96,9 +96,9 @@ julia [options] [program] [args...]
 ##资源
 除了本手册，还有一些其它的资源：
 
-[Julia 和 IJulia 使用说明](http://math.mit.edu/~stevenj/Julia-cheatsheet.pdf)
-[速学 Julia](http://learnxinyminutes.com/docs/julia/)
-[MIT 讲师 Homer Reid 数值分析课的教程](http://homerreid.dyndns.org/teaching/18.330/JuliaProgramming.shtml)
-[介绍 julia 的演讲](https://raw.githubusercontent.com/ViralBShah/julia-presentations/master/Fifth-Elephant-2013/Fifth-Elephant-2013.pdf)
-[来自 MIT 的 Julia 视频教程](http://julialang.org/blog/2013/03/julia-tutorial-MIT/)
-[Forio 的 Julia 教程](http://forio.com/labs/julia-studio/tutorials/)
+- [Julia 和 IJulia 使用说明](http://math.mit.edu/~stevenj/Julia-cheatsheet.pdf)
+- [速学 Julia](http://learnxinyminutes.com/docs/julia/)
+- [MIT 讲师 Homer Reid 数值分析课的教程](http://homerreid.dyndns.org/teaching/18.330/JuliaProgramming.shtml)
+- [介绍 julia 的演讲](https://raw.githubusercontent.com/ViralBShah/julia-presentations/master/Fifth-Elephant-2013/Fifth-Elephant-2013.pdf)
+- [来自 MIT 的 Julia 视频教程](http://julialang.org/blog/2013/03/julia-tutorial-MIT/)
+- [Forio 的 Julia 教程](http://forio.com/labs/julia-studio/tutorials/)
