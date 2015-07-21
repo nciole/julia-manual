@@ -1,4 +1,5 @@
-#变量
+# 变量
+
 A variable, in Julia, is a name associated (or bound) to a value. It’s useful when you want to store a value (that you obtained after some math, for example) for later use. For example:
 
 ```
@@ -73,7 +74,8 @@ julia> sqrt = 4
 
 很显然, 不鼓励这样的做法。
 
-##可用的变量名
+## 可用的变量名
+
 Variable names must begin with a letter (A-Z or a-z), underscore, or a subset of Unicode code points greater than 00A0; in particular, [Unicode character categories](http://www.fileformat.info/info/unicode/category/index.htm) Lu/Ll/Lt/Lm/Lo/Nl (letters), Sc/So (currency and other symbols), and a few other letter-like characters (e.g. a subset of the Sm math symbols) are allowed. Subsequent characters may also include ! and digits (0-9 and other characters in categories Nd/No), as well as other Unicode code points: diacritics and other modifying marks (categories Mn/Mc/Me/Sk), some punctuation connectors (category Pc), primes, and a few other characters.
 
 Operators like `+` are also valid identifiers, but are parsed specially. In some contexts, operators can be used just like variables; for example `(+)` refers to the addition function, and `(+) = f` will reassign it. Most of the Unicode infix operators (in category Sm), such as `⊕`, are parsed as infix operators and are available for user-defined methods (e.g. you can use const `⊗ = kron` to define `⊗` as an infix Kronecker product).
@@ -88,7 +90,8 @@ julia> try = "No"
 ERROR: syntax: unexpected "="
 ```
 
-##命名规范
+## 命名规范
+
 尽管 Julia 对命名本身只有很少的限制, 但尽量遵循一定的命名规范吧：
 
  * 变量名使用小写字母

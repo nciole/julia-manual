@@ -12,47 +12,51 @@ reference 调用 ``wait`` ，以等待 remote call 执行完毕，然后通过 `
 通过 ``julia -p n`` 启动，可以在本地机器上提供 ``n`` 个处理器。一般 ``n`` 等于机器上 CPU 内核个数：
 
 
+```
+$ ./julia -p 2
 
-    $ ./julia -p 2
+julia> r = remotecall(2, rand, 2, 2)
+RemoteRef(2,1,5)
 
-    julia> r = remotecall(2, rand, 2, 2)
-    RemoteRef(2,1,5)
+julia> fetch(r)
+2x2 Float64 Array:
+ 0.60401   0.501111
+ 0.174572  0.157411
 
-    julia> fetch(r)
-    2x2 Float64 Array:
-     0.60401   0.501111
-     0.174572  0.157411
+julia> s = @spawnat 2 1 .+ fetch(r)
+RemoteRef(2,1,7)
 
-    julia> s = @spawnat 2 1 .+ fetch(r)
-    RemoteRef(2,1,7)
-
-    julia> fetch(s)
-    2x2 Float64 Array:
-     1.60401  1.50111
-     1.17457  1.15741
+julia> fetch(s)
+2x2 Float64 Array:
+ 1.60401  1.50111
+ 1.17457  1.15741
+```
 
 ``remote_call`` 的第一个参数是要进行这个运算的处理器索引值。Julia 中大部分并行编程不查询特定的处理器或可用处理器的个数，但可认为 ``remote_call`` 是个为精细控制所提供的低级接口。第二个参数是要调用的函数，剩下的参数是该函数的参数。此例中，我们先让处理器 2 构造一个 2x2 的随机矩阵，然后我们在结果上加 1 。两个计算的结果保存在两个 remote reference 中，即 ``r`` 和 ``s`` 。 ``@spawnat`` 宏在由第一个参数指明的处理器上，计算第二个参数中的表达式。
 
 ``remote_call_fetch`` 函数可以立即获取要在远端计算的值。它等价于 ``fetch(remote_call(...))`` ，但比之更高效：
 
 
-
-    julia> remotecall_fetch(2, getindex, r, 1, 1)
-    0.10824216411304866
+```
+julia> remotecall_fetch(2, getindex, r, 1, 1)
+0.10824216411304866
+```
 
 ``getindex(r,1,1)`` :ref:`等价于 <man-array-indexing>` ``r[1,1]`` ，因此，这个调用获取 remote reference 对象 ``r`` 的第一个元素。
 
 ``remote_call`` 语法不太方便。 ``@spawn`` 宏简化了这件事儿，它对表达式而非函数进行操作，并自动选取在哪儿进行计算：
 
-    julia> r = @spawn rand(2,2)
-    RemoteRef(1,1,0)
+```
+julia> r = @spawn rand(2,2)
+RemoteRef(1,1,0)
 
-    julia> s = @spawn 1 .+ fetch(r)
-    RemoteRef(1,1,1)
+julia> s = @spawn 1 .+ fetch(r)
+RemoteRef(1,1,1)
 
-    julia> fetch(s)
-    1.10824216411304866 1.13798233877923116
-    1.12376292706355074 1.18750497916607167
+julia> fetch(s)
+1.10824216411304866 1.13798233877923116
+1.12376292706355074 1.18750497916607167
+```
 
 注意，此处用 ``1 .+ fetch(r)`` 而不是 ``1 .+ r`` 。这是因为我们不知道代码在何处运行，而 ``fetch`` 会将需要的 ``r`` 移到做加法的处理器上。此例中， ``@spawn`` 很聪明，它知道在有 ``r`` 对象的处理器上进行计算，因而 ``fetch`` 将不做任何操作。
 
@@ -60,39 +64,47 @@ reference 调用 ``wait`` ，以等待 remote call 执行完毕，然后通过 `
 
 所有执行程序代码的处理器上，都必须能获得程序代码。例如，输入： 
 
-    julia> function rand2(dims...)
-             return 2*rand(dims...)
-           end
+```
+julia> function rand2(dims...)
+         return 2*rand(dims...)
+       end
 
-    julia> rand2(2,2)
-    2x2 Float64 Array:
-     0.153756  0.368514
-     1.15119   0.918912
+julia> rand2(2,2)
+2x2 Float64 Array:
+ 0.153756  0.368514
+ 1.15119   0.918912
 
-    julia> @spawn rand2(2,2)
-    RemoteRef(1,1,1)
+julia> @spawn rand2(2,2)
+RemoteRef(1,1,1)
 
-    julia> @spawn rand2(2,2)
-    RemoteRef(2,1,2)
+julia> @spawn rand2(2,2)
+RemoteRef(2,1,2)
 
-    julia> exception on 2: in anonymous: rand2 not defined 
+julia> exception on 2: in anonymous: rand2 not defined 
+```
 
 进程 1 知道 ``rand2`` 函数，但进程 2 不知道。 ``require`` 函数自动在当前所有可用的处理器上载入源文件，使所有的处理器都能运行代码： 
 
-    julia> require("myfile")
+```
+julia> require("myfile")
+```
 
 在集群中，文件（及递归载入的任何文件）的内容会被发送到整个网络。可以使用 ``@everywhere`` 宏在所有处理器上执行命令： 
 
-    julia> @everywhere id = myid()
+```
+julia> @everywhere id = myid()
 
-    julia> remotecall_fetch(2, ()->id)
-    2
+julia> remotecall_fetch(2, ()->id)
+2
 
-    @everywhere include("defs.jl")
+@everywhere include("defs.jl")
+```
 
 A file can also be preloaded on multiple processes at startup, and a driver script can be used to drive the computation::
 
+```
     julia -p <n> -L file1.jl -L file2.jl driver.jl
+```
     
 Each process has an associated identifier. The process providing the interactive julia prompt
 always has an id equal to 1, as would the julia process running the driver script in the
@@ -115,13 +127,14 @@ adding, removing and querying the processes in a cluster.
 Other types of clusters can be supported by writing your own custom ClusterManager. See section on 
 ClusterManagers.
 
-数据移动
---------
+## 数据移动
+
 
 并行计算中，消息传递和数据移动是最大的开销。减少这两者的数量，对性能至关重要。
 
-``fetch`` 是显式的数据移动操作，它直接要求将对象移动到当前机器。 ``@spawn`` （及相关宏）也进行数据移动，但不是显式的，因而被称为隐式数据移动操作。对比如下两种构造随机矩阵并计算其平方的方法： ::
+``fetch`` 是显式的数据移动操作，它直接要求将对象移动到当前机器。 ``@spawn`` （及相关宏）也进行数据移动，但不是显式的，因而被称为隐式数据移动操作。对比如下两种构造随机矩阵并计算其平方的方法： :
 
+```
     # method 1
     A = rand(1000,1000)
     Bref = @spawn A^2
@@ -132,14 +145,16 @@ ClusterManagers.
     Bref = @spawn rand(1000,1000)^2
     ...
     fetch(Bref)
+```
 
 方法 1 中，本地构造了一个随机矩阵，然后将其传递给做平方计算的处理器。方法 2 中，在同一处理器构造随机矩阵并进行平方计算。因此，方法 2 比方法 1 移动的数据少得多。
 
-并行映射和循环
---------------
+## 并行映射和循环
+
 
 大部分并行计算不需要移动数据。最常见的是蒙特卡罗仿真。下例使用 ``@spawn`` 在两个处理器上仿真投硬币。先在 ``count_heads.jl`` 中写如下函数： 
 
+```
     function count_heads(n)
         c::Int = 0
         for i=1:n
@@ -147,22 +162,27 @@ ClusterManagers.
         end
         c
     end
+```
 
 在两台机器上做仿真，最后将结果加起来： 
 
+```
     require("count_heads")
 
     a = @spawn count_heads(100000000)
     b = @spawn count_heads(100000000)
     fetch(a)+fetch(b)
+```
 
 在多处理器上独立地进行迭代运算，然后用一些函数把它们的结果综合起来。综合的过程称为 *约简* 。
 
 上例中，我们显式调用了两个 ``@spawn`` 语句，它将并行计算限制在两个处理器上。要在任意个数的处理器上运行，应使用 *并行 for 循环* ，它在 Julia 中应写为： 
 
+```
     nheads = @parallel (+) for i=1:200000000
       int(randbool())
     end
+```
 
 这个构造实现了给多处理器分配迭代的模式，并且使用特定约简来综合结果（此例中为 ``(+)`` ）。
 
@@ -170,32 +190,38 @@ ClusterManagers.
 
 下列代码并不会按照预想运行： 
 
+```
     a = zeros(100000)
     @parallel for i=1:100000
       a[i] = i
     end
+```
 
 如果不需要，可以省略约简运算符。但此代码不会初始化 ``a`` 的所有元素，因为每个处理器上都只有独立的一份儿。应避免类似的并行 for 循环。但是我们可以使用分布式数组来规避这种情形，后面我们会讲。
 
 如果“外部”变量是只读的，就可以在并行循环中使用它： 
 
+```
     a = randn(1000)
     @parallel (+) for i=1:100000
       f(a[randi(end)])
     end
+```
 
 有时我们不需要约简，仅希望将函数应用到某个范围的整数（或某个集合的元素）上。这时可以使用 *并行映射* ``pmap`` 函数。下例中并行计算几个大随机矩阵的奇异值： 
 
+```
     M = {rand(1000,1000) for i=1:10}
     pmap(svd, M)
+```
 
 被调用的函数需处理大量工作时使用 ``pmap`` ，反之，则使用 ``@parallel for`` 。
 
-Synchronization With Remote References
---------------------------------------
+## Synchronization With Remote References
 
-Scheduling
-----------
+
+## Scheduling
+
 
 Julia's parallel programming platform uses
 :ref:`man-tasks` to switch among
@@ -213,10 +239,12 @@ workloads, where we want to assign more work to processes only when
 they finish their current tasks.
 
 As an example, consider computing the singular values of matrices of
-different sizes::
+different sizes:
 
+```
     M = {rand(800,800), rand(600,600), rand(800,800), rand(600,600)}
     pmap(svd, M)
+```
 
 If one process handles both 800x800 matrices and another handles both
 600x600 matrices, we will not get as much scalability as we could. The
@@ -224,6 +252,7 @@ solution is to make a local task to "feed" work to each process when
 it completes its current task. This can be seen in the implementation of
 ``pmap``:
 
+```
     function pmap(f, lst)
         np = nprocs()  # determine the number of processes available
         n = length(lst)
@@ -249,6 +278,7 @@ it completes its current task. This can be seen in the implementation of
         end
         results
     end
+```
 
 ``@async`` is similar to ``@spawn``, but only runs tasks on the
 local process. We use it to create a "feeder" task for each process.
@@ -263,8 +293,8 @@ required, since the threads are scheduled cooperatively and not
 preemptively. This means context switches only occur at well-defined
 points: in this case, when ``remotecall_fetch`` is called.
 
-分布式数组
-----------
+## 分布式数组
+
 
 并行计算综合使用多个机器上的内存资源，因而可以使用在一个机器上不能实现的大数组。这时，可使用分布式数组，每个处理器仅对它所拥有的那部分数组进行操作。
 
@@ -274,15 +304,19 @@ points: in this case, when ``remotecall_fetch`` is called.
 
 一些常用分布式数组可以使用 ``d`` 开头的函数来构造： 
 
+```
     dzeros(100,100,10)
     dones(100,100,10)
     drand(100,100,10)
     drandn(100,100,10)
     dfill(x, 100,100,10)
+```
 
 最后一个例子中，数组的元素由值 ``x`` 来初始化。这些函数自动选取某个分布。如果要指明使用哪个进程，如何分布数据，应这样写： 
 
+```
     dzeros((100,100), [1:4], [1,4])
+```
 
 The second argument specifies that the array should be created on processors
 1 through 4. When dividing data among a large number of processes,
@@ -309,25 +343,29 @@ equal the number of processes.
 使用索引值范围来索引 ``DArray`` （方括号）时，会创建 ``SubArray`` 对象，但不复制数据。
 
 
-构造分布式数组
---------------
+## 构造分布式数组
+
 
 ``DArray`` 的构造函数是 ``darray`` ，它的声明如下： 
 
+```
     DArray(init, dims[, procs, dist])
+```
 
 ``init`` 函数的参数，是索引值范围多元组。这个函数在本地声名一块分布式数组，并用指定索引值来进行初始化。 ``dims`` 是整个分布式数组的维度。 ``procs`` 是可选的，指明一个存有要使用的进程 ID 的向量 。 ``dist`` 是一个整数向量，指明分布式数组在每个维度应该被分成几块。
 
 最后俩参数是可选的，忽略的时候使用默认值。
 
-下例演示如果将本地数组 ``fill`` 的构造函数更改为分布式数组的构造函数： ::
+下例演示如果将本地数组 ``fill`` 的构造函数更改为分布式数组的构造函数： 
 
+```
     dfill(v, args...) = DArray(I->fill(v, map(length,I)), args...)
+```
 
 此例中 ``init`` 函数仅对它构造的本地块的维度调用 ``fill`` 。
 
-分布式数组运算
---------------
+## 分布式数组运算
+
 
 At this time, distributed arrays do not have much functionality. Their
 major utility is allowing communication to be done via array indexing, which
@@ -335,8 +373,9 @@ is convenient for many problems. As an example, consider implementing the
 "life" cellular automaton, where each cell in a grid is updated according
 to its neighboring cells. To compute a chunk of the result of one iteration,
 each process needs the immediate neighbor cells of its local chunk. The
-following code accomplishes this::
+following code accomplishes this:
 
+```
     function life_step(d::DArray)
         DArray(size(d),procs(d)) do I
             top   = mod(first(I[1])-2,size(d,1))+1
@@ -358,6 +397,7 @@ following code accomplishes this::
             life_rule(old)
         end
     end
+```
 
 As you can see, we use a series of indexing expressions to fetch
 data into a local array ``old``. Note that the ``do`` block syntax is
@@ -366,6 +406,7 @@ Next, the serial function ``life_rule`` is called to apply the update rules
 to the data, yielding the needed ``DArray`` chunk. Nothing about ``life_rule``
 is ``DArray``\ -specific, but we list it here for completeness:
 
+```
     function life_rule(old)
         m, n = size(old)
         new = similar(old, m-2, n-2)
@@ -379,10 +420,11 @@ is ``DArray``\ -specific, but we list it here for completeness:
         end
         new
     end
+```
 
 
-Shared Arrays (Experimental, UNIX-only feature)
------------------------------------------------
+## Shared Arrays (Experimental, UNIX-only feature)
+
 
 Shared Arrays use system shared memory to map the same array across
 many processes.  While there are some similarities to a ``DArray``,
@@ -417,8 +459,9 @@ specified, it is called on all the participating workers.  You can
 arrange it so that each worker runs the ``init`` function on a
 distinct portion of the array, thereby parallelizing initialization.
 
-Here's a brief example::
+Here's a brief example:
 
+```
   julia> addprocs(3)
   3-element Array{Any,1}:
    2
@@ -439,20 +482,24 @@ Here's a brief example::
    2  2  3  4
    2  3  3  4
    2  7  4  4
+```
 
 ``localindexes`` provides disjoint one-dimensional ranges of indexes,
 and is sometimes convenient for splitting up tasks among processes.
-You can, of course, divide the work any way you wish::
+You can, of course, divide the work any way you wish:
 
+```
   julia> S = SharedArray(Int, (3,4), init = S -> S[myid()-1:nworkers():length(S)] = myid())
   3x4 SharedArray{Int64,2}:
    2  2  2  2
    3  3  3  3
    4  4  4  4
+```
 
 Since all processes have access to the underlying data, you do have to
 be careful not to set up conflicts.  For example::
 
+```
   @sync begin
       for p in workers()
           @async begin
@@ -460,6 +507,7 @@ be careful not to set up conflicts.  For example::
           end
       end
   end
+```
 
 would result in undefined behavior: because each process fills the
 *entire* array with its own ``pid``, whichever process is the last to
@@ -467,8 +515,8 @@ execute (for any particular element of ``S``) will have its ``pid``
 retained.
 
 
-ClusterManagers
----------------
+## ClusterManagers
+
 
 Julia worker processes can also be spawned on arbitrary machines,
 enabling Julia's natural parallelism to function quite transparently
@@ -476,6 +524,7 @@ in a cluster environment. The ``ClusterManager`` interface provides a
 way to specify a means to launch and manage worker processes. For
 example, ``ssh`` clusters are also implemented using a ``ClusterManager``:
 
+```
     immutable SSHManager <: ClusterManager
         launch::Function
         manage::Function
@@ -491,17 +540,20 @@ example, ``ssh`` clusters are also implemented using a ``ClusterManager``:
     function manage_ssh_workers(id::Integer, config::Dict, op::Symbol)
         ...
     end
+```
 
 where ``launch_ssh_workers`` is responsible for instantiating new
 Julia processes and ``manage_ssh_workers`` provides a means to manage
 those processes, e.g. for sending interrupt signals. New processes can
 then be added at runtime using ``addprocs``:
 
+```
     addprocs(5, cman=LocalManager())
+```
 
 which specifies a number of processes to add and a ``ClusterManager`` to
 use for launching those processes.
 
 Footnotes
 
-[1]: In this context, MPI refers to the MPI-1 standard. Beginning with MPI-2, the MPI standards committee introduced a new set of communication mechanisms, collectively referred to as Remote Memory Access (RMA). The motivation for adding RMA to the MPI standard was to facilitate one-sided communication patterns. For additional information on the latest MPI standard, see http://www.mpi-forum.org/docs.
+[1]: In this context, MPI refers to the MPI-1 standard. Beginning with MPI-2, the MPI standards committee introduced a new set of communication mechanisms, collectively referred to as Remote Memory Access (RMA). The motivation for adding RMA to the MPI standard was to facilitate one-sided communication patterns. For additional information on the latest MPI standard, see <http://www.mpi-forum.org/docs>.

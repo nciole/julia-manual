@@ -1,4 +1,5 @@
-#字符串
+# 字符串
+
 Julia 中处理 [ASCII](http://zh.wikipedia.org/zh-cn/ASCII) 文本简洁高效，也可以处理 Unicode 。使用 C 风格的字符串代码来处理 ASCII 字符串，性能和语义都没问题。如果这种代码遇到非 ASCII 文本，会提示错误，而不是显示乱码。这时，修改代码以兼容非 ASCII 数据也很简单。
 
 关于 Julia 字符串，有一些值得注意的高级特性：
@@ -9,7 +10,8 @@ Julia 中处理 [ASCII](http://zh.wikipedia.org/zh-cn/ASCII) 文本简洁高效�
 * 概念上，字符串是从索引值映射到字符的 部分函数 ，对某些索引值，如果不是字符，会抛出异常
 * Julia 支持全部 Unicode 字符: 文本字符通常都是 ASCII 或 [UTF-8](http://zh.wikipedia.org/zh-cn/UTF-8) 的，但也支持其它编码
 
-##字符
+## 字符
+
 `Char` 表示单个字符：它是 32 位整数，值参见 [Unicode 码位](http://zh.wikipedia.org/zh-cn/%E7%A0%81%E4%BD%8D) 。 `Char` 必须使用单引号：
 
 ```
@@ -109,7 +111,8 @@ julia> 'A' + 1
 'B'
 ```
 
-##字符串基础
+## 字符串基础
+
 字符串文本应放在双引号 `"..."` 或三个双引号 `"""..."""` 中间：
 
 ```
@@ -177,7 +180,8 @@ julia> str[6:6]
 
 前者是类型为 `Char` 的单个字符，后者为仅有一个字符的字符串。在 Julia 中这两者完全不同。
 
-##Unicode 和 UTF-8
+## Unicode 和 UTF-8
+
 Julia 完整支持 Unicode 字符和字符串。正如上文所讨论的 ，在字符文本中， Unicode码位可以由 \u 和 \U 来转义，也可以使用标准 C 的转义序列。它们都可以用来写字符串文本：
 
 ```
@@ -243,7 +247,8 @@ y
 
 Julia 不只支持 UTF-8 ，增加其它编码的支持也很简单。In particular, Julia also provides UTF16String and UTF32String types, constructed by the utf16(s) and utf32(s) functions respectively, for UTF-16 and UTF-32 encodings. It also provides aliases WString and wstring(s) for either UTF-16 or UTF-32 strings, depending on the size of Cwchar_t. 有关 UTF-8 的讨论，详见下面的字节数组文本 。
 
-##内插
+## 内插
+
 字符串连接是最常用的操作：
 
 ```
@@ -301,7 +306,8 @@ julia> print("I have \$100 in my account.\n")
 I have $100 in my account.
 ```
 
-##一般操作
+## 一般操作
+
 使用标准比较运算符，按照字典顺序比较字符串：
 
 ```
@@ -360,10 +366,12 @@ julia> repeat(".:Z:.", 10)
 * `ind2chr(str,i)` 给出字符串中第 i 个索引值所在的字符，对应的是第几个字符
 * `chr2ind(str,j)` 给出字符串中索引为 i 的字符，对应的（第一个）字节的索引值
 
-##非标准字符串文本
+## 非标准字符串文本
+
 Julia 提供了[非标准字符串文本](http://julia-cn.readthedocs.org/zh_CN/latest/manual/metaprogramming/#man-non-standard-string-literals2) 。它在正常的双引号括起来的字符串文本上，添加了前缀标识符。下面将要介绍的正则表达式、字节数组文本和版本号文本，就是非标准字符串文本的例子。 [元编程](cell-code.md)章节有另外的一些例子。
 
-###正则表达式
+### 正则表达式
+
 Julia 的正则表达式 (regexp) 与 Perl 兼容，由 [PCRE](http://www.pcre.org/) 库提供。它是一种非标准字符串文本，前缀为 r ，最后面可再跟一些标识符。最基础的正则表达式仅为 `r"..."` 的形式：
 
 ```
@@ -509,7 +517,8 @@ Julia 支持三个双引号所引起来的正则表达式字符串，即 `r"""..
 
 ... Triple-quoted regex strings, of the form r"""...""", are also ... supported (and may be convenient for regular expressions containing ... quotation marks or newlines).
 
-##字节数组文本
+## 字节数组文本
+
 另一类非标准字符串文本为 `b"..."` ，可以表示文本化的字节数组，如 `Uint8` 数组。习惯上，非标准文本的前缀为大写，会生成实际的字符串对象；而前缀为小写的，会生成非字符串对象，如字节数组或编译后的正则表达式。字节表达式的规则如下：
 
 * ASCII 字符与 ASCII 转义符生成一个单字节

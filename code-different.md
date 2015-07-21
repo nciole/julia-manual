@@ -1,10 +1,9 @@
 
 
-#与其它语言的区别
+# 与其它语言的区别
 
+## 与 MATLAB 的区别
 
-与 MATLAB 的区别
-----------------
 
 Julia 的语法和 MATLAB 很像。但 Julia 不是简单地复制 MATLAB ，它们有很多句法和功能上的区别。以下是一些值得注意的区别：
 
@@ -16,12 +15,7 @@ Julia 的语法和 MATLAB 很像。但 Julia 不是简单地复制 MATLAB ，它
    Julia 把赋值和分配内存分开了：
    如果 ``a`` 长度为4, ``a[5] = 7`` 会抛出一个错误。 Julia 有一个专用的 ``push!`` 函数来向 ``Vectors`` 里增加元素。并且远比Matlab的 ``a(end+1) = val`` 来的高效。
 -  虚数单位 ``sqrt(-1)`` 用 ``im`` 来表示
--  Literal numbers without a decimal point (such as ``42``) create integers
-   instead of floating point numbers. Arbitrarily large integer
-   literals are supported. But this means that some operations such as
-   ``2^-1`` will throw a domain error as the result is not an integer (see
-   :ref:`the FAQ entry on domain errors <man-domain-error>` for details).
--  多返回值和多重赋值需要使用圆括号，如 ``return (a, b)`` 和 ``(a, b) = f(x)``
+-  字面上的数字如果没有小数点，则会被默认为整数类型而不是浮点类型。且支持任意长度的整数类型。但是这也意味着一些如`2^-1`的表达式因为不是正式而抛出一个异常。
 -  Julia 有一维数组。列向量的长度为 ``N`` ，而不是 ``Nx1`` 。例如， ``rand(N)`` 生成的是一维数组
 -  使用语法 ``[x,y,z]`` 来连接标量或数组，连接发生在第一维度（“垂直”）上。对于第二维度（“水平”）上的连接，需要使用空格，如 ``[x y z]`` 。   要想构造块矩阵，尽量使用语法 ``[a b; c d]``
 -  ``a:b`` 和 ``a:b:c`` 中的冒号，用来构造 ``Range`` 对象。使用 ``linspace`` 构造一个满向量，或者通过使用方括号来“连接”范围，如 ``[a:b]``
@@ -42,14 +36,10 @@ Julia 的语法和 MATLAB 很像。但 Julia 不是简单地复制 MATLAB ，它
 -  Julia 中 ``...`` 不用来将一行代码拆成多行。Instead, incomplete
    expressions automatically continue onto the next line.
 -  变量 ``ans`` 是交互式会话中执行的最后一条表达式的值；以其它方式执行的表达式的值，不会赋值给它
--  The closest analog to Julia's ``types`` are Matlab's
-   ``classes``. Matlab's ``structs`` behave somewhere between Julia's
-   ``types`` and ``Dicts``; in particular, if you need to be able to add
-   fields to a ``struct`` on-the-fly, use a ``Dict`` rather than a
-   ``type``.
+-  Julia 的 type 类型和Matlab中的 classes 非常接近。Matlab 中的 structs 行为介于 Julia 的 types 和 Dicts 之间。如果你想添加一个域在 strut 中，使用 Dict 会比 type 好一些。
 
-与 R 的区别
------------
+
+## 与 R 的区别
 
 Julia 也想成为数据分析和统计编程的高效语言。与 R 的区别：
 
@@ -75,8 +65,9 @@ Julia 也想成为数据分析和统计编程的高效语言。与 R 的区别�
 - 在 Julia 中，传递值和赋值是靠引用。如果一个函数修改了数组，调用函数会发现值也变了。这与 R 非常不同，这使得在大数据结构上进行新函数操作非常高效
 - 使用 ``hcat`` 和 ``vcat`` 来连接向量和矩阵，而不是 ``c``, ``rbind`` 和 ``cbind``
 - Julia 的范围对象如 ``a:b`` 与 R 中的定义向量的符号不同。它是一个特殊的对象，用于低内存开销的迭代。要把范围对象转换为向量，应该用方括号把范围对象括起来 ``[a:b]``
-- ``max``, ``min`` are the equivalent of ``pmax`` and ``pmin`` in R, but both arguments need to have the same dimensions.  While ``maximum``, ``minimum`` replace ``max`` and ``min`` in R, there are important differences.
-- The functions ``sum``, ``prod``, ``maximum``, ``minimum`` are different from their counterparts in R. They all accept one or two arguments. The first argument is an iterable collection such as an array.  If there is a second argument, then this argument indicates the dimensions, over which the operation is carried out.  For instance, let ``A=[[1 2],[3,4]]`` in Julia and ``B=rbind(c(1,2),c(3,4))`` be the same matrix in R.  Then ``sum(A)`` gives the same result as ``sum(B)``, but ``sum(A,1)`` is a row vector containing the sum over each column and ``sum(A,2)`` is a column vector containing the sum over each row.  This contrasts to the behavior of R, where ``sum(B,1)=11`` and ``sum(B,2)=12``.  If the second argument is a vector, then it specifies all the dimensions over which the sum is performed, e.g., ``sum(A,[1,2])=10``.  It should be noted that there is no error checking regarding the second argument.
+- `max`和`min`等价于 R 语言中的`pmax`和`pmin`。但是所有的参数都应该有相同的维度。而且
+`maximum`, `minimum` 可以替代 R 语言的 `max` and `min` ，这是最大的区别。
+- 函数 `sum`, `prod`, `maximum`, `minimum`和 R 语言中的同名函数并不相同。它们接收一个或者两个参数。第一个参数是集合，例如一个 array，如果有第二个参数，这个参数可以指明数据的维度，除此之外操作相似。比如，让 Julia 中的 `A=[[1 2],[3,4]]` 和 R 中的 `B=rbind(c(1,2),c(3,4))`比较会是一个矩阵。 接着 `sum(A)` 和`sum(B)`会有相同的结果, 但是 `sum(A,1)` 是一个包含一列和的行向量，而 `sum(A,2)` 是一个包含行和的列向量.  如果第二个参数是向量，如 ``sum(A,[1,2])=10``， 需要确保第二参数没有问题。
 - Julia 有许多函数可以修改它们的参数。例如， ``sort(v)`` 和 ``sort!(v)`` 函数中，带感叹号的可以修改 ``v``
 - ``colMeans()`` 和 ``rowMeans()``, ``size(m, 1)`` 和 ``size(m, 2)``
 - 在 R 中，需要向量化代码来提高性能。在 Julia 中与之相反：使用非向量化的循环通常效率最高
@@ -84,8 +75,7 @@ Julia 也想成为数据分析和统计编程的高效语言。与 R 的区别�
 - 不提供 ``NULL`` 类型
 - Julia 中没有与 R 的 ``assign`` 或 ``get`` 所等价的语句
 
-与 Python 的区别
-----------------
+## 与 Python 的区别
 
 - 对数组、字符串等索引。Julia 索引的下标是从 1 开始，而不是从 0 开始
 - 索引列表和数组的最后一个元素时，Julia 使用 ``end`` ，Python 使用 -1

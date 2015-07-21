@@ -1,12 +1,12 @@
 
 
-#代码性能优化
+# 代码性能优化
 
 
 以下几节将描述一些提高 Julia 代码运行速度的技巧。
 
-避免全局变量
-------------
+## 避免全局变量
+
 
 全局变量的值、类型，都可能变化。这使得编译器很难优化使用全局变量的代码。应尽量使用局部变量，或者把变量当做参数传递给函数。
 
@@ -14,19 +14,22 @@
 
 声明全局变量为常量可以显著提高性能：
 
-    const DEFAULT_VAL = 0
+```
+const DEFAULT_VAL = 0
+```
 
 使用非常量的全局变量时，最好在使用时指明其类型，这样也能帮助编译器优化： 
 
-    global x
-    y = f(x::Int + 1)
+```
+global x
+y = f(x::Int + 1)
+```
 
-Writing functions is better style. It leads to more reusable code and
-clarifies what steps are being done, and what their inputs and outputs
-are.
+写函数是一种更好的风格，这会产生更多可重复和清晰的代码，也包括清晰的输入和输出。
 
-使用 ``@time`` 来衡量性能并且留心内存分配
--------------------------------------
+
+## 使用 ``@time`` 来衡量性能并且留心内存分配
+
 
 衡量计算性能最有用的工具是 ``@time`` 宏. 下面的例子展示了良好的使用方式 :
 
@@ -78,8 +81,7 @@ are.
 
 
 
-工具
----
+## 工具
 
 Julia 提供了一些工具包来鉴别性能问题所在 :
 
@@ -101,70 +103,69 @@ Julia 提供了一些工具包来鉴别性能问题所在 :
 - `Lint <https://github.com/tonyhffong/Lint.jl>`_ 扩展包可以指出程序一
   些问题.
 
+## 避免包含一些抽象类型参数
 
-Avoid containers with abstract type parameters
-----------------------------------------------
+当运行参数化类型时候，比如 arrays，如果有可能最好去避免使用抽象类型参数。
+思考下面的代码：
 
-When working with parameterized types, including arrays, it is best to
-avoid parameterizing with abstract types where possible.
+```
+a = Real[]    # typeof(a) = Array{Real,1}
+if (f = rand()) < .8
+    push!(a, f)
+end
+```
 
-Consider the following :
+因为`a`是一个抽象类型`Real`的 array，所以可以包含任何`Real`类型的值。既然`Real`对象可以是任意的大小和结构，`a`必须被解释为一个array数组指向所有可能的对象。所以我们应该用确定的类型代替，比如`Float64`:
 
-    a = Real[]    # typeof(a) = Array{Real,1}
-    if (f = rand()) < .8
-        push!(a, f)
-    end
+```
+a = Float64[] # typeof(a) = Array{Float64,1}
+```
 
-Because ``a`` is a an array of abstract type ``Real``, it must be able
-to hold any Real value.  Since ``Real`` objects can be of arbitrary
-size and structure, ``a`` must be represented as an array of pointers to
-individually allocated ``Real`` objects.  Because ``f`` will always be
-a ``Float64``, we should instead, use:
+这样会建立大小为 64 位的浮点值，也会更有效率。
 
-    a = Float64[] # typeof(a) = Array{Float64,1}
 
-which will create a contiguous block of 64-bit floating-point values
-that can be manipulated efficiently.
-
-See also the discussion under :ref:`man-parametric-types`.
-
-类型声明
---------
+## 类型声明
 
 在 Julia 中，编译器能推断出所有的函数参数与局部变量的类型，因此声名变量类型不能提高性能。然而在有些具体实例中，声明类型还是非常有用的。
 
-##给复合类型做类型声明
+## 给复合类型做类型声明
 
 
 假如有一个如下的自定义类型： 
 
-    type Foo
-        field
-    end
+```
+type Foo
+    field
+end
+```
 
 编译器推断不出 ``foo.field`` 的类型，因为当它指向另一个不同类型的值时，它的类型也会被修改。这时最好声明具体的类型，比如 ``field::Float64`` 或者 ``field::Array{Int64,1}`` 。
 
-###显式声明未提供类型的值的类型
+### 显式声明未提供类型的值的类型
 
 
 我们经常使用含有不同数据类型的数据结构，比如上述的 ``Foo`` 类型，或者元胞数组（ ``Array{Any}`` 类型的数组）。如果你知道其中元素的类型，最好把它告诉编译器： ::
 
-    function foo(a::Array{Any,1})
-        x = a[1]::Int32
-        b = x+1
-        ...
-    end
+```
+function foo(a::Array{Any,1})
+    x = a[1]::Int32
+    b = x+1
+    ...
+end
+```
 
 假如我们知道 ``a`` 的第一个元素是 ``Int32`` 类型的，那就添加上这样的类型声明吧。如果这个元素不是这个类型，在运行时就会报错，这有助于调试代码。
 
-###显式声明命名参数的值的类型
+### 显式声明命名参数的值的类型
 
 
 命名参数可以显式指定类型::
 
-    function with_keyword(x; name::Int = 1)
-        ...
-    end
+```
+function with_keyword(x; name::Int = 1)
+    ...
+end
+```
 
 函数只处理指定类型的命名参数，因此这些声明不会对该函数内部代码的性能产生影响。
 不过，这会减少此类包含命名参数的函数的调用开销。
@@ -174,53 +175,62 @@ See also the discussion under :ref:`man-parametric-types`.
 如果传入函数的是命名参数的动态列表，例如``f(x; keywords...)``，速度会比较慢，性能敏感的代码慎用。
 
 
-把函数拆开
-----------
+## 把函数拆开
 
 把一个函数拆为多个，有助于编译器调用最匹配的代码，甚至将它内联。
 
 举个应该把“复合函数”写成多个小定义的例子： 
 
-    function norm(A)
-        if isa(A, Vector)
-            return sqrt(real(dot(A,A)))
-        elseif isa(A, Matrix)
-            return max(svd(A)[2])
-        else
-            error("norm: invalid argument")
-        end
+```
+function norm(A)
+    if isa(A, Vector)
+        return sqrt(real(dot(A,A)))
+    elseif isa(A, Matrix)
+        return max(svd(A)[2])
+    else
+        error("norm: invalid argument")
     end
+end
+```
 
 如下重写会更精确、高效： 
 
-    norm(x::Vector) = sqrt(real(dot(x,x)))
-    norm(A::Matrix) = max(svd(A)[2])
+```
+norm(x::Vector) = sqrt(real(dot(x,x)))
+norm(A::Matrix) = max(svd(A)[2])
+```
 
-写“类型稳定”的函数
-------------------
+## 写“类型稳定”的函数
+
 
 尽量确保函数返回同样类型的数值。考虑下面定义： 
 
-    pos(x) = x < 0 ? 0 : x
+```
+pos(x) = x < 0 ? 0 : x
+```
 
 尽管看起来没问题，但是 ``0`` 是个整数（ ``Int`` 型）， ``x`` 可能是任意类型。因此，函数有返回两种类型的可能。这个是可以的，有时也很有用，但是最好如下重写： ::
 
-    pos(x) = x < 0 ? zero(x) : x
+```
+pos(x) = x < 0 ? zero(x) : x
+```
 
 Julia 中还有 ``one`` 函数，以及更通用的 ``oftype(x,y)`` 函数，它将 ``y`` 转换为与 ``x`` 同样的类型，并返回。这仨函数的第一个参数，可以是一个值，也可以是一个类型。
 
-避免改变变量类型
-----------------
+## 避免改变变量类型
+
 
 在一个函数中重复地使用变量，会导致类似于“类型稳定性”的问题： 
 
-    function foo()
-        x = 1
-        for i = 1:10
-            x = x/bar()
-        end
-        return x
+```
+function foo()
+    x = 1
+    for i = 1:10
+        x = x/bar()
     end
+    return x
+end
+```
 
 局部变量 ``x`` 开始为整数，循环一次后变成了浮点数（ ``/`` 运算符的结果）。这使得编译器很难优化循环体。可以修改为如下的任何一种：
 
@@ -228,32 +238,36 @@ Julia 中还有 ``one`` 函数，以及更通用的 ``oftype(x,y)`` 函数，它
 -  声明 ``x`` 的类型： ``x::Float64 = 1``
 -  使用显式转换: ``x = one(T)``
 
-分离核心函数
-------------
+## 分离核心函数
+
 
 很多函数都先做些初始化设置，然后开始很多次循环迭代去做核心计算。尽可能把这些核心计算放在单独的函数中。例如，下面的函数返回一个随机类型的数组： 
 
-    function strange_twos(n)
-        a = Array(randbool() ? Int64 : Float64, n)
-        for i = 1:n
-            a[i] = 2
-        end
-        return a
+```
+function strange_twos(n)
+    a = Array(randbool() ? Int64 : Float64, n)
+    for i = 1:n
+        a[i] = 2
     end
+    return a
+end
+```
 
 应该写成： 
 
-    function fill_twos!(a)
-        for i=1:length(a)
-            a[i] = 2
-        end
+```
+function fill_twos!(a)
+    for i=1:length(a)
+        a[i] = 2
     end
+end
 
-    function strange_twos(n)
-        a = Array(randbool() ? Int64 : Float64, n)
-        fill_twos!(a)
-        return a
-    end
+function strange_twos(n)
+    a = Array(randbool() ? Int64 : Float64, n)
+    fill_twos!(a)
+    return a
+end
+```
 
 Julia 的编译器依靠参数类型来优化代码。第一个实现中，编译器在循环时不知道 ``a`` 的类型（因为类型是随机的）。第二个实现中，内层循环使用 ``fill_twos!`` 对不同的类型 ``a`` 重新编译，因此运行速度更快。
 
@@ -263,26 +277,27 @@ Julia 的编译器依靠参数类型来优化代码。第一个实现中，编�
 
 形如 ``strange_twos`` 之类的函数经常用于处理未知类型的数据。比如，从文件载入的数据，可能包含整数、浮点数、字符串，或者其他类型。
 
-Access arrays in memory order, along columns
---------------------------------------------
+## Access arrays in memory order, along columns
+
 
 Multidimensional arrays in Julia are stored in column-major order. This
 means that arrays are stacked one column at a time. This can be verified
 using the ``vec`` function or the syntax ``[:]`` as shown below (notice
 that the array is ordered ``[1 3 2 4]``, not ``[1 2 3 4]``):
 
+```
+julia> x = [1 2; 3 4]
+2x2 Array{Int64,2}:
+ 1  2
+ 3  4
 
-    julia> x = [1 2; 3 4]
-    2x2 Array{Int64,2}:
-     1  2
-     3  4
-
-    julia> x[:]
-    4-element Array{Int64,1}:
-     1
-     3
-     2
-     4
+julia> x[:]
+4-element Array{Int64,1}:
+ 1
+ 3
+ 2
+ 4
+```
 
 This convention for ordering arrays is common in many languages like
 Fortran, Matlab, and R (to name a few). The alternative to column-major
@@ -303,54 +318,58 @@ adapted accordingly). We could conceivably do this in at least four ways
 (in addition to the recommended call to the built-in function
 ``repmat``):
 
-    function copy_cols{T}(x::Vector{T})
-        n = size(x, 1)
-        out = Array(eltype(x), n, n)
-        for i=1:n
-            out[:, i] = x
-        end
-        out
+```
+function copy_cols{T}(x::Vector{T})
+    n = size(x, 1)
+    out = Array(eltype(x), n, n)
+    for i=1:n
+        out[:, i] = x
     end
+    out
+end
 
-    function copy_rows{T}(x::Vector{T})
-        n = size(x, 1)
-        out = Array(eltype(x), n, n)
-        for i=1:n
-            out[i, :] = x
-        end
-        out
+function copy_rows{T}(x::Vector{T})
+    n = size(x, 1)
+    out = Array(eltype(x), n, n)
+    for i=1:n
+        out[i, :] = x
     end
+    out
+end
 
-    function copy_col_row{T}(x::Vector{T})
-        n = size(x, 1)
-        out = Array(T, n, n)
-        for col=1:n, row=1:n
-            out[row, col] = x[row]
-        end
-        out
+function copy_col_row{T}(x::Vector{T})
+    n = size(x, 1)
+    out = Array(T, n, n)
+    for col=1:n, row=1:n
+        out[row, col] = x[row]
     end
+    out
+end
 
-    function copy_row_col{T}(x::Vector{T})
-        n = size(x, 1)
-        out = Array(T, n, n)
-        for row=1:n, col=1:n
-            out[row, col] = x[col]
-        end
-        out
+function copy_row_col{T}(x::Vector{T})
+    n = size(x, 1)
+    out = Array(T, n, n)
+    for row=1:n, col=1:n
+        out[row, col] = x[col]
     end
+    out
+end
+```
 
 Now we will time each of these functions using the same random ``10000``
 by ``1`` input vector:
 
-    julia> x = randn(10000);
+```
+julia> x = randn(10000);
 
-    julia> fmt(f) = println(rpad(string(f)*": ", 14, ' '), @elapsed f(x))
+julia> fmt(f) = println(rpad(string(f)*": ", 14, ' '), @elapsed f(x))
 
-    julia> map(fmt, {copy_cols, copy_rows, copy_col_row, copy_row_col});
-    copy_cols:    0.331706323
-    copy_rows:    1.799009911
-    copy_col_row: 0.415630047
-    copy_row_col: 1.721531501
+julia> map(fmt, {copy_cols, copy_rows, copy_col_row, copy_row_col});
+copy_cols:    0.331706323
+copy_rows:    1.799009911
+copy_col_row: 0.415630047
+copy_row_col: 1.721531501
+```
 
 Notice that ``copy_cols`` is much faster than ``copy_rows``. This is
 expected because ``copy_cols`` respects the column-based memory layout
@@ -360,8 +379,8 @@ our rule of thumb that the first element to appear in a slice expression
 should be coupled with the inner-most loop.
 
 
-Pre-allocating outputs
-----------------------
+## Pre-allocating outputs
+
 
 If your function returns an Array or some other complex
 type, it may have to allocate memory.  Unfortunately, oftentimes
@@ -372,42 +391,45 @@ Sometimes you can circumvent the need to allocate memory on each
 function call by pre-allocating the output.  As a
 trivial example, compare
 
+```
+function xinc(x)
+    return [x, x+1, x+2]
+end
 
-    function xinc(x)
-        return [x, x+1, x+2]
+function loopinc()
+    y = 0
+    for i = 1:10^7
+        ret = xinc(i)
+        y += ret[2]
     end
-
-    function loopinc()
-        y = 0
-        for i = 1:10^7
-            ret = xinc(i)
-            y += ret[2]
-        end
-        y
-    end
+    y
+end
+```
 
 with
 
+```
+function xinc!{T}(ret::AbstractVector{T}, x::T)
+    ret[1] = x
+    ret[2] = x+1
+    ret[3] = x+2
+    nothing
+end
 
-    function xinc!{T}(ret::AbstractVector{T}, x::T)
-        ret[1] = x
-        ret[2] = x+1
-        ret[3] = x+2
-        nothing
+function loopinc_prealloc()
+    ret = Array(Int, 3)
+    y = 0
+    for i = 1:10^7
+        xinc!(ret, i)
+        y += ret[2]
     end
-
-    function loopinc_prealloc()
-        ret = Array(Int, 3)
-        y = 0
-        for i = 1:10^7
-            xinc!(ret, i)
-            y += ret[2]
-        end
-        y
-    end
+    y
+end
+```
 
 Timing results:
 
+```
     julia> @time loopinc()
     elapsed time: 1.955026528 seconds (1279975584 bytes allocated)
     50000015000000
@@ -415,6 +437,7 @@ Timing results:
     julia> @time loopinc_prealloc()
     elapsed time: 0.078639163 seconds (144 bytes allocated)
     50000015000000
+```
 
 Pre-allocation has other advantages, for example by allowing the
 caller to control the "output" type from an algorithm.  In the example
@@ -424,37 +447,44 @@ had we so desired.
 Taken to its extreme, pre-allocation can make your code uglier, so
 performance measurements and some judgment may be required.
 
-Avoid string interpolation for I/O
-----------------------------------
+## Avoid string interpolation for I/O
+
 
 When writing data to a file (or other I/O device), forming extra
-intermediate strings is a source of overhead. Instead of::
+intermediate strings is a source of overhead. Instead of:
 
+```
     println(file, "$a $b")
+```
 
 use::
 
+```
     println(file, a, " ", b)
+```
 
 The first version of the code forms a string, then writes it
 to the file, while the second version writes values directly
 to the file. Also notice that in some cases string interpolation can
 be harder to read. Consider:
 
+```
     println(file, "$(f(a))$(f(b))")
+```
 
 versus::
 
+```
     println(file, f(a), f(b))
+```
 
 
-处理有关舍弃的警告
-------------------
+## 处理有关舍弃的警告
 
 被舍弃的函数，会查表并显示一次警告，而这会影响性能。建议按照警告的提示进行对应的修改。
 
-小技巧
-------
+## 小技巧
+
 
 注意些有些小事项，能使内部循环更紧致。
 
@@ -464,8 +494,8 @@ versus::
 -  对于整数除法，使用 ``div(x,y)`` 而不是 ``trunc(x/y)``, 使用 ``fld(x,y)`` 而不是 ``floor(x/y)``, 使用 ``cld(x,y)`` 而不是 ``ceil(x/y)``.
 
 
-Performance Annotations
------------------------
+## Performance Annotations
+
 
 Sometimes you can enable better optimization by promising certain program
 properties.
@@ -479,6 +509,7 @@ properties.
 
 Here is an example with both forms of markup:
 
+```
     function inner( x, y )
         s = zero(eltype(x))
         for i=1:length(x)
@@ -510,11 +541,14 @@ Here is an example with both forms of markup:
     end
 
     timeit(1000,1000)
+```
 
 On a computer with a 2.4GHz Intel Core i5 processor, this produces:
 
+```
     GFlop        = 1.9467069505224963
     GFlop (SIMD) = 17.578554163920018
+```
 
 The range for a ``@simd for`` loop should be a one-dimensional range.
 A variable used for accumulating, such as ``s`` in the example, is called
