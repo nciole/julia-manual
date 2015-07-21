@@ -1,5 +1,5 @@
 
- 模块
+ # 模块
 
 
 
@@ -7,6 +7,7 @@ Julia 的模块是一个独立的全局变量工作区。它由句法限制在 `
 
 下面的例子展示了模块的主要特征。这个例子仅为演示：
 
+```
     module MyModule
     using Lib
     
@@ -27,6 +28,7 @@ Julia 的模块是一个独立的全局变量工作区。它由句法限制在 `
     
     show(io, a::MyType) = print(io, "MyType $(a.x)")
     end
+```
 
 注意上述例子没有缩进模块体的代码，因为整体缩进没有必要。
 
@@ -53,11 +55,12 @@ not create its own variable with the same name.
 Imported variables are read-only; assigning to a global variable always
 affects a variable owned by the current module, or else raises an error.
 
-##Summary of module usage
+## Summary of module usage
 
 
 To load a module, two main keywords can be used: ``using`` and ``import``. To understand their differences, consider the following example::
 
+```
     module MyModule
     
     export x, y
@@ -67,6 +70,7 @@ To load a module, two main keywords can be used: ``using`` and ``import``. To un
     p() = "p"
     
     end
+```
 
 In this module we export the ``x`` and ``y`` functions (with the keyword ``export``), and also have the non-exported function ``p``. There are several different ways to load the Module and its inner functions into the current workspace:
 
@@ -82,21 +86,24 @@ In this module we export the ``x`` and ``y`` functions (with the keyword ``expor
 
 
 
-模块和文件
-----------
+## 模块和文件
+
 
 大多数情况下,文件和文件名与模块无关；模块只与模块表达式有关。一个模块可
 以有多个文件，一个文件也可以有多个模块：
 
+```
     module Foo
 
     include("file1.jl")
     include("file2.jl")
 
     end
+```
 
 在不同的模块中包含同样的代码，会带来类似 mixin 的特征。可以利用这点，在不同的环境定义下运行同样的代码，例如运行一些操作的“安全”版本来进行代码测试： 
 
+```
     module Normal
     include("mycode.jl")
     end
@@ -105,10 +112,10 @@ In this module we export the ``x`` and ``y`` functions (with the keyword ``expor
     include("safe_operators.jl")
     include("mycode.jl")
     end
+```
 
+## 标准模块
 
-标准模块
---------
 
 有三个重要的标准模块：Main, Core, 和 Base 。
 
@@ -119,13 +126,14 @@ Core 包含“内置”的所有标志符，例如部分核心语言，但不包
 Base 是标准库（ 在 base/ 文件夹下）。所有的模块都隐含地调用了 ``using Base`` ，因为大部分情况下都需要它。
 
 
-默认顶级声明和裸模块
---------------------
+## 默认顶级声明和裸模块
+
 
 除了 ``using Base`` ，模块显式引入了所有的运算符。模块还自动包含 ``eval`` 函数的定义，这个函数对本模块中的表达式求值。
 
-如果不想要这些定义，可以使用 ``baremodule`` 关键字来定义模块。使用 ``baremodule`` 时，一个标准的模块有如下格式： ::
+如果不想要这些定义，可以使用 ``baremodule`` 关键字来定义模块。使用 ``baremodule`` 时，一个标准的模块有如下格式：
 
+```
     baremodule Mod
 
     using Base
@@ -138,15 +146,16 @@ Base 是标准库（ 在 base/ 文件夹下）。所有的模块都隐含地调�
     ...
 
     end
+```
 
+## 模块的相对和绝对路径
 
-模块的相对和绝对路径
---------------------
 
 输入指令 ``using foo``, Julia 会首先在 ``Main`` 名字空间中寻找 ``Foo`` 。如果模块未找到, Julia 会尝试 ``require("Foo")`` 。通常情况下, 这会从已安装的包中载入模块.
 
 然而，有些模块还有子模块，也就是说，有时候不能从 ``Main`` 中直接引用一些模块。有两种方法可以解决这个问题：方法一，使用绝对路径，如 ``using Base.Sort`` 。方法二，使用相对路径，这样可以方便地载入当前模块的子模块或者嵌套的模块：
 
+```
     module Parent
 
     module Utils
@@ -157,17 +166,20 @@ Base 是标准库（ 在 base/ 文件夹下）。所有的模块都隐含地调�
 
     ...
     end
+```
 
 模块 ``Parent`` 包含子模块 ``Utils`` 。如果想要 ``Utils`` 中的内容对 ``Parent`` 可见, 可以使用 ``using`` 加上英文句号。更多的句号表示在更下一层的命名空间进行搜索。例如， ``using ..Utils`` 将会在 ``Parent`` 模块的
 子模块内寻找 ``Utils`` 。
 
-模块文件路径
-------------
+## 模块文件路径
 
 
-全局变量 ``LOAD_PATH`` 包含了调用 ``require`` 时 Julia搜索模块的目录。可以用 ``push!`` 进行扩展 ::
 
+全局变量 ``LOAD_PATH`` 包含了调用 ``require`` 时 Julia搜索模块的目录。可以用 ``push!`` 进行扩展 :
+
+```
     push!(LOAD_PATH, "/Path/To/My/Module/")
+```
 
 将这一段代码放在 ``~\.juliarc.jl`` 里能够在每次 Julia启动时对 ``LOAD_PATH`` 扩展。 此外，还可以通过定义环境变量
 ``JULIA_LOAD_PATH`` 来扩展 Julia的模块路径。
@@ -175,8 +187,7 @@ Base 是标准库（ 在 base/ 文件夹下）。所有的模块都隐含地调�
 
 
 
-小提示
-------
+## 小提示
 
 如果一个命名是有许可的(qualified)（如 ``Base.sin`` ），即使它没被 export ，仍能被外部读取。这在调试时非常有用。
 

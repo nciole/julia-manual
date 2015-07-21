@@ -1,7 +1,9 @@
-#复数和分数
+# 复数和分数
+
 Julia 提供复数和分数类型，并对其支持所有的[标准数学运算](http://julia-cn.readthedocs.org/zh_CN/latest/manual/mathematical-operations/#man-mathematical-operations) 。对不同的数据类型进行混合运算时，无论是基础的还是复合的，都会自动使用[类型转换和类型提升](type-transformation.md)。
 
-##复数
+## 复数
+
 全局变量 `im` 即复数 i ，表示 -1 的正平方根。因为 `i` 经常作为索引变量，所以不使用它来代表复数了。Julia 允许数值文本作为[代数系数](http://julia-cn.readthedocs.org/zh_CN/latest/manual/integers-and-floating-point-numbers/#man-numeric-literal-coefficients) ，也适用于复数：
 
 ```

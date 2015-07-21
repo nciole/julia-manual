@@ -1,7 +1,7 @@
 
 
 
-#类型转换和类型提升
+# 类型转换和类型提升
 
 
 Julia 可以将数学运算符的参数提升为同一个类型，这些参数的类型曾经在[整数和浮点数](integer-and-floating.md) ，[数学运算和基本函数](operation-function.md)，[类型](type-learning.md)，及[方法](method-learning.md)中提到过。
@@ -10,13 +10,13 @@ Julia 可以将数学运算符的参数提升为同一个类型，这些参数�
 
 
 
-类型转换
---------
+## 类型转换
+
 
 ``convert`` 函数用于将值转换为各种类型。它有两个参数：第一个是类型对象，第二个是要转换的值；返回值是转换为指定类型的值：
 
 
-
+```
     julia> x = 12
     12
 
@@ -34,18 +34,20 @@ Julia 可以将数学运算符的参数提升为同一个类型，这些参数�
 
     julia> typeof(ans)
     Float64
+```
 
 遇到不能转换时， ``convert`` 会引发 “no method” 错误：
 
 
-
+```
     julia> convert(FloatingPoint, "foo")
     ERROR: `convert` has no method matching convert(::Type{FloatingPoint}, ::ASCIIString)
      in convert at base.jl:13
+```
 
 Julia 不做字符串和数字之间的类型转换。
 
-##定义新类型转换
+## 定义新类型转换
 
 
 要定义新类型转换，只需给 ``convert`` 提供新方法即可。下例将数值转换为布尔值： 
@@ -62,7 +64,7 @@ within the body.
 转换时检查数值是否为 0 ：
 
 
-
+```
     julia> convert(Bool, 1)
     true
 
@@ -75,22 +77,26 @@ within the body.
 
     julia> convert(Bool, 0im)
     false
+```
 
 实际使用的类型转换都比较复杂，下例是 Julia 中的一个实现：
 
+```
     convert{T<:Real}(::Type{T}, z::Complex) = (imag(z)==0 ? convert(T,real(z)) :
                                                throw(InexactError()))
 
     julia> convert(Bool, 1im)
     InexactError()
      in convert at complex.jl:40
+```
 
 
-##案例：分数类型转换
+## 案例：分数类型转换
 
 
 继续 Julia 的 ``Rational`` 类型的案例研究， [rational.jl](https://github.com/JuliaLang/julia/blob/master/base/rational.jl) 中类型转换的声明紧跟在类型声明和构造函数之后： 
 
+```
     convert{T<:Integer}(::Type{Rational{T}}, x::Rational) = Rational(convert(T,x.num),convert(T,x.den))
     convert{T<:Integer}(::Type{Rational{T}}, x::Integer) = Rational(convert(T,x), convert(T,1))
 
@@ -114,20 +120,21 @@ within the body.
     convert{T<:FloatingPoint}(::Type{T}, x::Rational) = convert(T,x.num)/convert(T,x.den)
     convert{T<:Integer}(::Type{T}, x::Rational) = div(convert(T,x.num),convert(T,x.den))
 
+```
 
 前四个定义可确保 ``a//b == convert(Rational{Int64}, a/b)`` 。后两个把分数转换为浮点数和整数类型。
 
 
 
-类型提升
---------
+## 类型提升
+
 
 类型提升是指将各种类型的值转换为同一类型。它与类型等级关系无关，例如，每个 ``Int32`` 值都可以被表示为 ``Float64`` 值，但 ``Int32`` 不是 ``Float64`` 的子类型。
 
 Julia 使用 ``promote`` 函数来做类型提升，其参数个数可以是任意多，它返回同样个数的同一类型的多元组；如果不能提升，则抛出异常。类型提升常用来将数值参数转换为同一类型：
 
 
-
+```
     julia> promote(1, 2.5)
     (1.0,2.5)
 
@@ -145,6 +152,7 @@ Julia 使用 ``promote`` 函数来做类型提升，其参数个数可以是任�
 
     julia> promote(1 + 2im, 3//4)
     (1//1 + 2//1*im,3//4 + 0//1*im)
+```
 
 浮点数值提升为最高的浮点数类型。整数值提升为本地机器的原生字长或最高的整数值类型。既有整数也有浮点数时，提升为可以包括所有值的浮点数类型。既有整数也有分数时，提升为分数。既有分数也有浮点数时，提升为浮点数。既有复数也有实数时，提升为适当的复数。
 
@@ -157,47 +165,58 @@ Julia 使用 ``promote`` 函数来做类型提升，其参数个数可以是任�
 
 [promotion.jl](https://github.com/JuliaLang/julia/blob/master/base/promotion.jl)  中还定义了其它算术和数学运算类型提升的方法，但 Julia 标准库中几乎没有调用 ``promote`` 。 ``promote`` 一般用在外部构造方法中，便于使构造函数适应各种不同类型的参数。 [rational.jl](https://github.com/JuliaLang/julia/blob/master/base/rational.jl) 中提供了如下的外部构造方法：
 
+```
     Rational(n::Integer, d::Integer) = Rational(promote(n,d)...)
+```
 
 此方法的例子：
 
+```
     julia> Rational(int8(15),int32(-5))
     -3//1
 
     julia> typeof(ans)
     Rational{Int64} (constructor with 1 method)
+```
 
 对自定义类型来说，最好由程序员给构造函数显式提供所期待的类型。但处理数值问题时，做自动类型提升比较方便。
 
-##定义类型提升规则
+## 定义类型提升规则
 
 
 尽管可以直接给 ``promote`` 函数定义方法，但这太麻烦了。我们用辅助函数 ``promote_rule`` 来定义 ``promote`` 的行为。 ``promote_rule`` 函数接收类型对象对儿，返回另一个类型对象。此函数将参数中的类型的实例，提升为要返回的类型：
 
+```
     promote_rule(::Type{Float64}, ::Type{Float32} ) = Float64
+```
 
 提升后的类型不需要与函数的参数类型相同。下面是 Julia 标准库中的例子： 
 
+```
     promote_rule(::Type{Uint8}, ::Type{Int8}) = Int
     promote_rule(::Type{Char}, ::Type{Uint8}) = Int32
+```
 
 不需要同时定义 ``promote_rule(::Type{A}, ::Type{B})`` 和 ``promote_rule(::Type{B}, ::Type{A})`` —— ``promote_rule`` 函数在提升过程中隐含了对称性。
 
 ``promote_type`` 函数使用 ``promote_rule`` 函数来定义，它接收任意个数的类型对象，返回它们作为 ``promote`` 参数时，所应返回值的公共类型。因此可以使用 ``promote_type`` 来了解特定类型的组合会提升为哪种类型：
 
 
-
+```
     julia> promote_type(Int8, Uint16)
     Int64
+```
 
 ``promote`` 使用 ``promote_type`` 来决定类型提升时要把参数值转换为哪种类型。完整的类型提升机制可见 `promotion.jl <https://github.com/JuliaLang/julia/blob/master/base/promotion.jl>`_ ，一共有 35 行。
 
-##案例：分数类型提升
+## 案例：分数类型提升
 
 
 我们结束 Julia 分数类型的案例：
 
+```
     promote_rule{T<:Integer}(::Type{Rational{T}}, ::Type{T}) = Rational{T}
     promote_rule{T<:Integer,S<:Integer}(::Type{Rational{T}}, ::Type{S}) = Rational{promote_type(T,S)}
     promote_rule{T<:Integer,S<:Integer}(::Type{Rational{T}}, ::Type{Rational{S}}) = Rational{promote_type(T,S)}
     promote_rule{T<:Integer,S<:FloatingPoint}(::Type{Rational{T}}, ::Type{S}) = promote_type(T,S)
+```

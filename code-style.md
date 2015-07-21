@@ -6,8 +6,8 @@ The following sections explain a few aspects of idiomatic Julia coding style.
 None of these rules are absolute; they are only suggestions to help familiarize
 you with the language and to help you choose among alternative designs.
 
-写成函数，别写成脚本
---------------------
+## 写成函数，别写成脚本
+
 
 Writing code as a series of steps at the top level is a quick way to get
 started solving a problem, but you should try to divide a program into
@@ -19,16 +19,20 @@ code, due to how Julia's compiler works.
 It is also worth emphasizing that functions should take arguments, instead
 of operating directly on global variables (aside from constants like ``pi``).
 
-避免类型过于严格
-----------------
+## 避免类型过于严格
+
 
 Code should be as generic as possible. Instead of writing:
 
+```
     convert(Complex{Float64}, x)
+```
 
-it's better to use available generic functions::
+it's better to use available generic functions:
 
+```
     complex(float(x))
+```
 
 The second version will convert ``x`` to an appropriate type, instead of
 always the same type.
@@ -43,12 +47,14 @@ is passed that does not support any of the requisite operations.
 (This is known as [duck typing](http://en.wikipedia.org/wiki/Duck_typing) .)
 
 For example, consider the following definitions of a function
-``addone`` that returns one plus its argument::
+``addone`` that returns one plus its argument:
 
+```
     addone(x::Int) = x + 1             # works only for Int
     addone(x::Integer) = x + one(x)    # any integer type
     addone(x::Number) = x + one(x)     # any numeric type
     addone(x) = x + one(x)             # any type supporting + and one
+```
 
 The last definition of ``addone`` handles any type supporting the
 ``one`` function (which returns 1 in the same type as ``x``, which
@@ -62,23 +68,27 @@ will automatically compile a specialized ``addone`` function for
 value ``1``.  Therefore, the first three definitions of ``addone``
 above are completely redundant.
 
-Handle excess argument diversity in the caller
-----------------------------------------------
+## Handle excess argument diversity in the caller
+
 
 Instead of:
 
+```
     function foo(x, y)
         x = int(x); y = int(y)
         ...
     end
     foo(x, y)
+```
 
 use:
 
+```
     function foo(x::Int, y::Int)
         ...
     end
     foo(int(x), int(y))
+```
 
 This is better style because ``foo`` does not really accept numbers of all
 types; it really needs ``Int`` s.
@@ -88,22 +98,26 @@ might be better to force the caller to decide how non-integers should
 be converted (e.g. floor or ceiling). Another issue is that declaring
 more specific types leaves more "space" for future method definitions.
 
-如果函数修改了它的参数，在函数名后加 `!`
-----------------------------------------
+## 如果函数修改了它的参数，在函数名后加 `!`
+
 
 Instead of:
 
+```
     function double{T<:Number}(a::AbstractArray{T})
         for i = 1:endof(a); a[i] *= 2; end
 	a
     end
+```
 
 use:
 
+```
     function double!{T<:Number}(a::AbstractArray{T})
         for i = 1:endof(a); a[i] *= 2; end
 	a
     end
+```
 
 The Julia standard library uses this convention throughout and
 contains examples of functions with both copying and modifying forms
@@ -111,13 +125,12 @@ contains examples of functions with both copying and modifying forms
 (e.g., ``push!``, ``pop!``, ``splice!``).  It is typical for
 such functions to also return the modified array for convenience.
 
-避免奇葩的类型集合
-------------------
+## 避免奇葩的类型集合
 
 像 ``Union(Function,String)`` 这样的类型，说明你的设计有问题。
 
-Try to avoid nullable fields
-----------------------------
+## Try to avoid nullable fields
+
 
 When using ``x::Union(Nothing,T)``, ask whether the option for ``x`` to be
 ``nothing`` is really necessary. Here are some alternatives to consider:
@@ -129,19 +142,21 @@ When using ``x::Union(Nothing,T)``, ask whether the option for ``x`` to be
   For example, often the field will start as ``nothing`` but get initialized at
   some well-defined point. In that case, consider leaving it undefined at first.
 
-Avoid elaborate container types
--------------------------------
+## Avoid elaborate container types
+
 
 It is usually not much help to construct arrays like the following::
 
+```
     a = Array(Union(Int,String,Tuple,Array), n)
+```
 
 In this case ``cell(n)`` is better. It is also more helpful to the compiler
 to annotate specific uses (e.g. ``a[i]::Int``) than to try to pack many
 alternatives into one type.
 
-使用和 Julia ``base/`` 相同的命名传统
--------------------------------------
+## 使用和 Julia ``base/`` 相同的命名传统
+
 
 - 模块和类型名称以大写开头, 并且使用驼峰形式: ``module SparseMatrix``,
   ``immutable UnitRange``.
@@ -157,41 +172,49 @@ alternatives into one type.
 的情况下最好分拆成多个部分.
 
 
-不要滥用 try-catch
-------------------
+## 不要滥用 try-catch
+
 
 It is better to avoid errors than to rely on catching them.
 
-不要把条件表达式用圆括号括起来
-------------------------------
+## 不要把条件表达式用圆括号括起来
+
 
 Julia doesn't require parens around conditions in ``if`` and ``while``.
-Write::
+Write:
 
+```
     if a == b
+```
 
-instead of::
+instead of:
 
+```
     if (a == b)
+```
 
-不要滥用 ...
-------------
+## 不要滥用 ...
+
 
 Splicing function arguments can be addictive. Instead of ``[a..., b...]``,
 use simply ``[a, b]``, which already concatenates arrays.
 ``collect(a)`` is better than ``[a...]``, but since ``a`` is already iterable
 it is often even better to leave it alone, and not convert it to an array.
 
-Don't use unnecessary static parameters
----------------------------------------
+## Don't use unnecessary static parameters
+
 
 A function signature:
 
+```
     foo{T<:Real}(x::T) = ...
+```
 
 should be written as:
 
+```
     foo(x::Real) = ...
+```
 
 instead, especially if ``T`` is not used in the function body.
 Even if ``T`` is used, it can be replaced with ``typeof(x)`` if convenient.
@@ -203,13 +226,15 @@ Note also that container types, specifically may need type parameters in
 function calls. See the FAQ :ref:`man-abstract-container-type`
 for more information.
 
-Avoid confusion about whether something is an instance or a type
-----------------------------------------------------------------
+## Avoid confusion about whether something is an instance or a type
+
 
 Sets of definitions like the following are confusing:
 
+```
     foo(::Type{MyType}) = ...
     foo(::MyType) = foo(MyType)
+```
 
 Decide whether the concept in question will be written as ``MyType`` or
 ``MyType()``, and stick to it.
@@ -224,8 +249,8 @@ of it. Constructors and conversions can check whether values are valid.
 This design is preferred over making the enumeration an abstract type,
 with the "values" as subtypes.
 
-不要滥用 macros
----------------
+## 不要滥用 macros
+
 
 Be aware of when a macro could really be a function instead.
 
@@ -234,19 +259,23 @@ it means the macro will only work when called at the top level. If such
 a macro is written as a function instead, it will naturally have access
 to the run-time values it needs.
 
-Don't expose unsafe operations at the interface level
------------------------------------------------------
+## Don't expose unsafe operations at the interface level
+
 
 If you have a type that uses a native pointer:
 
+```
     type NativeType
         p::Ptr{Uint8}
         ...
     end
+```
 
 don't write definitions like the following:
 
+```
     getindex(x::NativeType, i) = unsafe_load(x.p, i)
+```
 
 The problem is that users of this type can write ``x[i]`` without realizing
 that the operation is unsafe, and then be susceptible to memory bugs.
@@ -254,28 +283,30 @@ that the operation is unsafe, and then be susceptible to memory bugs.
 Such a function should either check the operation to ensure it is safe, or
 have ``unsafe`` somewhere in its name to alert callers.
 
-Don't overload methods of base container types
-----------------------------------------------
+##Don't overload methods of base container types
+
 
 It is possible to write definitions like the following:
 
+```
     show(io::IO, v::Vector{MyType}) = ...
+```
 
 This would provide custom showing of vectors with a specific new element type.
 While tempting, this should be avoided. The trouble is that users will expect
 a well-known type like ``Vector`` to behave in a certain way, and overly
 customizing its behavior can make it harder to work with.
 
-Be careful with type equality
------------------------------
+## Be careful with type equality
+
 
 You generally want to use ``isa`` and ``<:`` (``issubtype``) for testing types,
 not ``==``. Checking types for exact equality typically only makes sense
 when comparing to a known concrete type (e.g. ``T == Float64``), or if you
 *really, really* know what you're doing.
 
-不要写 ``x->f(x)``
-------------------
+## 不要写 ``x->f(x)``
+
 
 高阶函数经常被用作匿名函数来调用，虽然这样很方便，但是尽量少这么写。例如，尽量把 ``map(x->f(x), a)`` 写成 ``map(f, a)`` 。
 
