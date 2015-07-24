@@ -336,36 +336,36 @@ asind  acosd  atand  acotd  asecd  acscd
 |erfc(x)|	补误差函数。当 x 较大时，精确计算 1-erf(x)|
 |erfinv(x)|	erf 的反函数|
 |erfcinv(x)|	erfc 的反函数|
-|erfi(x)|	the imaginary error function defined as -im * erf(x * im), where im is the imaginary unit|
-|erfcx(x)|	the scaled complementary error function, i.e. accurate exp(x^2) * erfc(x) for large x|
-|dawson(x)|	the scaled imaginary error function, a.k.a. Dawson function, i.e. accurate exp(-x^2) * erfi(x) * sqrt(pi) / 2 for large x|
+|erfi(x)|	将误差函数定义为  -im * erf(x * im) ，其中 im 是虚数单位|
+|erfcx(x)|	缩放的互补误差函数，即对较大的 x 值的准确的 exp（x ^ 2）* erfc（x）|
+|dawson(x)|	缩放虚误差函数，又名道森函数，即对较大的 x 值求精确的 exp(-x^2) * erfi(x) * sqrt(pi) / 2|
 |gamma(x)|	x 处的 gamma 函数|
 |lgamma(x)|	当 x 较大时，精确计算 log(gamma(x))|
-|lfact(x)|	accurate log(factorial(x)) for large x; same as lgamma(x+1) for x > 1, zero otherwise|
-|digamma(x)|	the digamma function (i.e. the derivative of lgamma) at x|
-|beta(x,y)|	the beta function at x,y|
-|lbeta(x,y)|	accurate log(beta(x,y)) for large x or y|
-|eta(x)|the Dirichlet eta function at x|
-|zeta(x)|	the Riemann zeta function at x|
-|airy(z), airyai(z), airy(0,z)	|the Airy Ai function at z|
+|lfact(x)|对较大的 x 求精确的 log(factorial(x)); 与对大于 1 的 x 值求 lgamma(x+1) 相等, 否则等于 0|
+|digamma(x)|	x 处的 digamma 函数，即导数的衍生 |
+|beta(x,y)|	在（x,y）处的 beta 函数|
+|lbeta(x,y)| 对较大的 x 或 y 值求准确的 log(beta(x,y)) |
+|eta(x)| x 处的 Dirichlet eta 函数|
+|zeta(x)|	x 处的 Riemann zeta 函数|
+|airy(z), airyai(z), airy(0,z)	| z 处的 Airy Ai 函数|
 |airyprime(z), airyaiprime(z), airy(1,z)|	Airy Ai 函数在 z 处的导数|
-|airybi(z), airy(2,z)	|the Airy Bi function at z|
+|airybi(z), airy(2,z)	|z 处的 Airy Bi 函数|
 |airybiprime(z), airy(3,z)|	Airy Bi 函数在 z 处的导数|
-|airyx(z), airyx(k,z)	|the scaled Airy AI function and k th derivatives at z|
-|besselj(nu,z)|	the Bessel function of the first kind of order nu at z|
+|airyx(z), airyx(k,z)	| 缩放 Airy Ai 函数 以及 k 对 z 的导数|
+|besselj(nu,z)|对 z 中一阶 nu 的贝塞尔函数|
 |besselj0(z)	|besselj(0,z)|
 |besselj1(z)|	besselj(1,z)|
-|besseljx(nu,z)|	the scaled Bessel function of the first kind of order nu at z|
-|bessely(nu,z)|	the Bessel function of the second kind of order nu at z|
+|besseljx(nu,z)|对 z 中一阶 nu 的缩放贝塞尔函数|
+|bessely(nu,z)|	对 z 中二阶 nu 的贝塞尔函数|
 |bessely0(z)|bessely(0,z)|
 |bessely1(z)|	bessely(1,z)|
-|besselyx(nu,z)|	the scaled Bessel function of the second kind of order nu at z|
-|besselh(nu,k,z)|	the Bessel function of the third kind (a.k.a. Hankel function) of order nu at z; k must be either 1 or 2|
+|besselyx(nu,z)|	对 z 中二阶 nu 的缩放贝塞尔函数|
+|besselh(nu,k,z)|	对 z 中三阶 nu （例如汉克尔函数）的贝塞尔函数； k 必须为 1 或 2 |
 |hankelh1(nu,z)|	besselh(nu, 1, z)|
-|hankelh1x(nu,z)|	scaled besselh(nu, 1, z)|
+|hankelh1x(nu,z)|	缩放 besselh(nu, 1, z)|
 |hankelh2(nu,z)|	besselh(nu, 2, z)|
-|hankelh2x(nu,z)|	scaled besselh(nu, 2, z)|
-|besseli(nu,z)	|the modified Bessel function of the first kind of order nu at z|
-|besselix(nu,z)|	the scaled modified Bessel function of the first kind of order nu at z|
-|besselk(nu,z)	|the modified Bessel function of the second kind of order nu at z|
-|besselkx(nu,z)	|the scaled modified Bessel function of the second kind of o|
+|hankelh2x(nu,z)|	缩放 besselh(nu, 2, z)|
+|besseli(nu,z)	|对 z 中一阶 nu 的修正贝塞尔函数|
+|besselix(nu,z)|对 z 中一阶 nu 的缩放修正贝塞尔函数|
+|besselk(nu,z)	|对 z 中二阶 nu 的修正贝塞尔函数|
+|besselkx(nu,z)	|对二阶 o 的缩放修正贝塞尔函数|
