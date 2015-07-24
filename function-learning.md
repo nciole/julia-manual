@@ -400,19 +400,20 @@ map([A, B, C]) do x
 end
 ```
 
-The `do x` syntax creates an anonymous function with argument x and passes it as the first argument to `map`. Similarly, `do a,b` would create a two-argument anonymous function, and a plain `do` would declare that what follows is an anonymous function of the form `() -> ....`
+ `do x` 的语法创建一个含有参数 x 的匿名函数，并将其传给  `map` 作为第一个参数。类似地，`do a,b`  将创建一个含有二个参数的匿名函数，和一个朴素的 `do` 的声明以 `() -> ....` 方式说明如下是一个匿名函数  
+ 
+如何将这些参数初始化取决于“外部”函数；在这里，`map` 将依次设置`x`   到  `A, B, C`，每个都将调用匿名函数，就像在语法  `map(func, [A, B, C])` 中做的一样。
 
-How these arguments are initialized depends on the “outer” function; here, `map` will sequentially set `x` to `A, B, `C`, calling the anonymous function on each, just as would happen in the syntax `map(func, [A, B, C])`.
+因为语法的调用看起来像正常的代码块，所以这种语法使它更容易使用函数来有效地扩展语言。这里有许多可能的完全不同于 `map` 的用途，如管理系统状态。例如，有一个版本的“打开”，运行代码来确保打开的文件最终关闭：
 
-This syntax makes it easier to use functions to effectively extend the language, since calls look like normal code blocks. There are many possible uses quite different from `map`, such as managing system state. For example, there is a version of `open` that runs code ensuring that the opened file is eventually closed:
 
-```
+````map` 
 open("outfile", "w") do io
     write(io, data)
 end
 ```
 
-This is accomplished by the following definition:
+它可以通过以下定义来实现：
 
 ```
 function open(f::Function, args...)
@@ -424,7 +425,6 @@ function open(f::Function, args...)
     end
 end
 ```
+对比的地图的例子，这里的 IO 是通过 `open("outfile", "w")` 来实现初始化的。字符流之后会传递给您的执行写入的匿名函数；最后，“打开”的功能确保流在您的函数结束后是关闭状态的。  `try/finally` 的构造将在 [控制流](control-learning.md) 中被描述。
 
-In contrast to the map example, here io is initialized by the result of `open("outfile", "w")`. The stream is then passed to your anonymous function, which performs the writing; finally, the `open` function ensures that the stream is closed after your function exits. The `try/finally` construct will be described in [控制流](control-learning.md).
-
-With the do block syntax, it helps to check the documentation or implementation to know how the arguments of the user function are initialized.
+do 块语法的使用有助于检查文档或实现了解用户函数的参数是如何被初始化的。
