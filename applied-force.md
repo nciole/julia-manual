@@ -114,7 +114,7 @@ julia> y
 ```
 前一个例子中， `y` 仅存在于 `for` 循环中。后一个例子中，外部声明的 `y` 被引入到循环中。由于会话的作用域与全局作用域差不多，因此在循环中不必声明 `global y` 。但是，不在交互式模式下运行的代码，必须声明全局变量。
 
-Multiple variables can be declared global using the following syntax:
+多变量可以使用以下语法声明为全局：
 
 ```
 function foo()
