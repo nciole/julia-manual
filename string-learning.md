@@ -245,7 +245,7 @@ x
 y
 ```
 
-Julia 不只支持 UTF-8 ，增加其它编码的支持也很简单。In particular, Julia also provides UTF16String and UTF32String types, constructed by the utf16(s) and utf32(s) functions respectively, for UTF-16 and UTF-32 encodings. It also provides aliases WString and wstring(s) for either UTF-16 or UTF-32 strings, depending on the size of Cwchar_t. 有关 UTF-8 的讨论，详见下面的字节数组文本 。
+Julia 不只支持 UTF-8 ，增加其它编码的支持也很简单。特别是，Julia 还提供了 utf16string 和 utf32string 类型，由 UTF16（S）和 utf32（S）函数分别支持 UTF-16 和 UTF-32 编码。它还为 UTF-16 或 UTF-32 字符串提供了别名 WString  和 wstring（S），两者的选择取决于cwchar_t大小。 有关 UTF-8 的讨论，详见下面的字节数组文本 。
 
 ## 内插
 
@@ -558,10 +558,10 @@ julia> b"\uff"
 
 在字符文本中，这两个是相同的。 `\xff` 也可以代表码位 255，因为字符 永远 代表码位。然而在字符串中， `\x` 转义永远表示字节而不是码位，而 `\u` 和 `\U` 转义永远表示码位，编码后为 1 或多个字节。
 
-Version Number Literals
-Version numbers can easily be expressed with non-standard string literals of the form `v"..."`. Version number literals create `VersionNumber` objects which follow the specifications of semantic versioning, and therefore are composed of major, minor and patch numeric values, followed by pre-release and build alpha-numeric annotations. For example, `v"0.2.1-rc1+win64"` is broken into major version `0`, minor version `2`, patch version `1`, pre-release rc1 and build win64. When entering a version literal, everything except the major version number is optional, therefore e.g. `v"0.2"` is equivalent to `v"0.2.0"` (with empty pre-release/build annotations), `v"2"` is equivalent to `v"2.0.0"`, and so on.
+版本号文字
+版本号可以很容易地用非标准字符串的形式 `v"..."` 表示。版本号会遵循语义版本的规范创建 `VersionNumber` 对象 ，因此版本号主要是由主版本号，次版本号和补丁的值决定的，其后是预发布和创建的数字注释。例如，`v"0.2.1-rc1+win64"` 可以被分块解释为主版本 ` 0 `，次要版本 ` 2 `，补丁版本 ` 1 ` ，预发布 RC1 和创建为 Win64 。当输入一个版本号时，除了主版本号的其余字段都是可选的，因此，会出现例如 `v"0.2"` 与 `v"0.2.0"` 等效（空预发布/创建注释），`v"2"` 与 `v"2.0.0"` 等效，等等。
 
-VersionNumber objects are mostly useful to easily and correctly compare two (or more) versions. For example, the constant VERSION holds Julia version number as a VersionNumber object, and therefore one can define some version-specific behaviour using simple statements as:
+VersionNumber 对象大多是能做到容易且准确地比较两个（或更多）的版本。例如，恒定的版本把 Julia 版本号作为一个 VersionNumber  对象管理，因此可以使用简单的语句定义一些特定版本的行为，例如：
 
 ```
 if v"0.2" <= VERSION < v"0.3-"
@@ -569,10 +569,10 @@ if v"0.2" <= VERSION < v"0.3-"
 end
 ```
 
-Note that in the above example the non-standard version number `v"0.3-"` is used, with a trailing -: this notation is a Julia extension of the standard, and it’s used to indicate a version which is lower than any `0.3` release, including all of its pre-releases. So in the above example the code would only run with stable `0.2` versions, and exclude such versions as `v"0.3.0-rc1"`. In order to also allow for unstable (i.e. pre-release) `0.2` versions, the lower bound check should be modified like this:` v"0.2-" <= VERSION`.
+既然在上面的示例中使用了非标准的版本号 `v"0.3-"` , 它使用了一个后连接号：此符号是一个朱丽亚扩展的标准符号，它是用来表示一个低于何0.3的发行版的版本，其中包括其所有的预发行版本。所以在上面的例子中的代码只会运行稳定在` 0.2 `版本，并不能运行在这样的版本 `v"0.3.0-rc1"` 。为了允许它也在不稳定的（即预发行版）0.2 版上运行，较低的检查应修改为` v"0.2-" <= VERSION`。  
 
-Another non-standard version specification extension allows to use a trailing + to express an upper limit on build versions, e.g. `VERSION > "v"0.2-rc1+"` can be used to mean any version above `0.2-rc1` and any of its builds: it will return false for version `v"0.2-rc1+win64"` and true for `v"0.2-rc2"`.
+另一个非标准版规范扩展允许对使用尾部 + 来表达一个上限构建版本，例如  `VERSION > "v"0.2-rc1+"`  可以被用来表示任何版本在 `0.2-rc1` 之上且任何创建形式的版本：对于版本  `v"0.2-rc1+win64"` 将返回 false ,而对于 `v"0.2-rc2"` 会返回 true 。  
 
-It is good practice to use such special versions in comparisons (particularly, the trailing `-` should always be used on upper bounds unless there’s a good reason not to), but they must not be used as the actual version number of anything, as they are illegal in the semantic versioning scheme.
+使用这种特殊的版本比较是好的尝试（特别是，尾随 `-`  应该总是被使用在上限规范，除非有一个很好的理由不去这样），但这样的形式不得被当作任何的实际版本号使用，因为在语义版本控制方案上它们是非法的。  
 
-Besides being used for the `VERSION` constant, `VersionNumber` objects are widely used in the `Pkg` module, to specify packages versions and their dependencies.
+除了用于  `VERSION` 常数，`VersionNumber` 对象还广泛应用于 `Pkg` 模块，来指定包的版本和它们的依赖关系。
