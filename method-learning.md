@@ -85,11 +85,10 @@ julia> f(x::Float64, y::Float64) = 2x + y;
 ```
     julia> f
     f (generic function with 2 methods)
-```
+```  
+
+这个输出告诉我们， ``f`` 是一个含有两个方法的函数对象。要找出这些方法的签名，可以通过使用 ``methods`` 函数来实现：
     
-This output tells us that ``f`` is a function object with two
-methods. To find out what the signatures of those methods are, use the
-``methods`` function:
 
 ```
     julia> methods(f)
@@ -98,11 +97,8 @@ methods. To find out what the signatures of those methods are, use the
     f(x::Number,y::Number) at none:1
 ```
 
-which shows that f has two methods, one taking two ``Float64``
-arguments and one taking arguments of type ``Number``. It also
-indicates the file and line number where the methods were defined:
-because these methods were defined at the REPL, we get the apparent
-line number ``none:1``.    
+这表明，f 有两个方法，一个以两个 ``Float64`` 类型作为参数和另一个则以一个  ``Number`` 类型作为参数。它也指示了定义方法的文件和行数：因为这些方法在 REPL 中定义，我们得到明显行数值： ``none:1`` 。
+
 
 定义类型时如果没使用 ``::`` ，则方法参数的类型默认为 ``Any`` 。对 ``f`` 定义一个总括匹配的方法：
 
