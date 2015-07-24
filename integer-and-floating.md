@@ -165,9 +165,9 @@ true
 
 为了减小溢出所带来的影响，整数加减法、乘法、指数运算都会把原先范围较小的整数类型提升到 `Int` 或 `Uint` 类型。（除法、求余、位运算则不提升类型）。
 
-**Division errors**
+**除法中的错误**
 
-Integer division (the div function) has two exceptional cases: dividing by zero, and dividing the lowest negative number (typemin) by -1. Both of these cases throw a DivideError. The remainder and modulus functions (rem and mod) throw a DivideError when their second argument is zero.
+整数除法（ div 函数）会有两种意外情况 ：一种是除以零，另一种是将最小负数（typemin）除以 -1 。这两种情况都会抛出一个 DivideError 的异常 。取余函数和求模函数（REM 和 MOD）当它们的第二个参数为零时也会抛出 DivideError 的异常。
 
 **浮点数**
 使用标准格式来表示文本化的浮点数：
