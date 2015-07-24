@@ -83,7 +83,7 @@ x is equal to y
 
 `elseif` 及 `else` 块是可选的。
 
-Note that very short conditional statements (one-liners) are frequently expressed using Short-Circuit Evaluation in Julia, as outlined in the next section.
+请注意，非常短的条件语句（一行）在朱丽亚中是会经常使用短的电路评估（Short-Circuit Evaluation）实现的，具体细节在下一节中进行概述。
 
 如果条件表达式的值是除 `true` 和 `false` 之外的值，会出错：
 
@@ -244,9 +244,9 @@ true
 ```
 julia> 1 && true
 ERROR: type: non-boolean (Int64) used in boolean context
-```
-
-On the other hand, any type of expression can be used at the end of a conditional chain. It will be evaluated and returned depending on the preceding conditionals:
+```  
+  
+另一方面，任何类型的表达式可以使用在一个条件链的末端。根据前面的条件，它将被评估和返回：  
 
 ```
 julia> true && (x = rand(2,2))
@@ -422,9 +422,8 @@ ERROR: DomainError
 sqrt will only return a complex result if called with a complex argument.
 try sqrt(complex(x))
  in sqrt at math.jl:131
-```
-
-You may define your own exceptions in the following way:
+```  
+你可以使用下列方式定义你自己的异常：
 
 ```
 julia> type MyCustomException <: Exception end
@@ -571,15 +570,14 @@ julia> sqrt_second(9)
 julia> sqrt_second(-9)
 ERROR: DomainError
  in sqrt_second at none:7
-```
-
-Note that the symbol following catch will always be interpreted as a name for the exception, so care is needed when writing try/catch expressions on a single line. The following code will not work to return the value of x in case of an error:
+```  
+注意，跟在捕捉之后的符号会被解释为一个异常的名称，因此，需要注意的是，在一行中写 try/catch  表达式时。下面的代码将不正常工作返回 x 的值防止发生错误：   
 
 ```
 try bad() catch x end
 ```
-
-Instead, use a semicolon or insert a line break after catch:
+  
+我们在 catch 后使用分号或插入换行来实现：
 
 ```
 try bad() catch; x end
@@ -707,7 +705,7 @@ taskHdl = @task mytask(7)
 |符号	|意义|
 |:-----|:------|
 |:runnable	|任务正在运行，或可被切换到该任务|
-|:waiting	|Blocked waiting for a specific event|
-|:queued|	In the scheduler’s run queue about to be restarted|
+|:waiting	|等待一个特定事件从而阻塞|
+|:queued|	在调度程序的运行队列中准备重新启动|
 |:done	|成功执行完毕|
 |:failed	|由于未处理的异常而终止|
