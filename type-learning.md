@@ -37,8 +37,7 @@ Julia的类型系统的设计旨在有效及具表现力，既清楚直观又不
     3
 ```
 
-可以在任何表达式的所在位置做类型断言。The most common usage of ``::`` as an assertion is in
-function/methods signatures, such as ``f(x::Int8) = ...`` (see
+可以在任何表达式的所在位置做类型断言。 ``::`` 最常见的用法是作为一个在函数/方法签名中的断言，例如 ``f(x::Int8) = ...`` (查看
 [方法](method-learning.md)).
 
 ``::`` 运算符跟在表达式上下文中的 *变量名* 后时，它声明变量应该是某个类型，有点儿类似于 C 等静态语言中的类型声明。赋给这个变量的值会被 ``convert`` 函数转换为所声明的类型：
@@ -68,13 +67,9 @@ function/methods signatures, such as ``f(x::Int8) = ...`` (see
     x::Int8 = 10   # as the left-hand side of an assignment
 ```
 
-and applies to the whole current scope, even before the declaration.
-Currently, type declarations cannot be used in global scope, e.g. in
-the REPL, since Julia does not yet have constant-type globals.  Note
-that in a function return statement, the first two of the above
-expressions compute a value and then ``::`` is a type assertion and
-not a declaration.
-
+并适用于整个当前范围，甚至在声明之前。
+目前，声明类型不能用于全局范围，例如在 REPL 中就不可以，因为朱丽亚还没有定型的全局变量。需要注意的是在函数返回语句中，上述的前两个
+表达式计算值，还有就是 ``::``  是一个类型的断言不是一个声明。
 
 
 ## 抽象类型
@@ -376,10 +371,6 @@ not a declaration.
     ()
 ```
 
-.. Tuple types are *covariant* in their constituent types, which means
-.. that one tuple type is a subtype of another if elements of the first
-.. are subtypes of the corresponding elements of the second. For
-.. example:
 多元组类型是关于它的组成类型是 *协变* 的，一个多元组是另一个多元组的子类型
 意味着对应的第一个多元组的各元素的类型是第二个多元组对应元素类型的子类型。比如:
 
