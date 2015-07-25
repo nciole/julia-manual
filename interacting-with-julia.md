@@ -3,7 +3,8 @@
 # Interacting With Julia
 
 
-Julia comes with a full-featured interactive command-line REPL (read-eval-print loop) built into the ``julia`` executable.  In addition to allowing quick and easy evaluation of Julia statements, it has a searchable history, tab-completion, many helpful keybindings, and dedicated help and shell modes.  The REPL can be started by simply calling julia with no arguments or double-clicking on the executable:
+
+Julia 有一个全功能的交互式命令行 REPL （read-eval-print 循环）内置在可执行的 ``julia`` 内。除了允许快速并且简易的评定 Julia 语句，他还有一个可搜索历史的功能，tab 补齐功能，以及更多有用的快捷键，和专门的帮助，并且还有 shell 模式。 REPL 能够通过简单的无参数调用或双击执行来进行启动:
 
 ```
     $ julia
@@ -19,22 +20,23 @@ Julia comes with a full-featured interactive command-line REPL (read-eval-print 
     julia>
 ```
 
-To exit the interactive session, type ``^D`` — the control key together with the ``d`` key on a blank line — or type ``quit()`` followed by the return or enter key. The REPL greets you with a banner and a ``julia>`` prompt.
-
-## The different prompt modes
+如果要退出互动会话，敲击 ``^D`` 即 control 键加上 d 键 - 或者是编辑 ``quit()``，然后在敲击回车键。 REPL 会给你 ``julia>`` 提示。
 
 
-### The Julian mode
+## 不同的提示模式
 
 
-The REPL has four main modes of operation.  The first and most common is the Julian prompt.  It is the default mode of operation; each new line initially starts with ``julia>``.  It is here that you can enter Julia expressions.  Hitting return or enter after a complete expression has been entered will evaluate the entry and show the result of the last expression.
+### Julia 模式
+
+
+REPL 有四种主要的操作模式。第一种并且最常见的一种是 Julian 提示。它是默认的操作模式；每一行的开始都会是 ``julia>`` 。在这里，你可以输入 Julia 表达式。在一个完整的表达式已经输入好之后敲打回车将会评估该条目并且显示最后一个表达式的结果。
 
 ```
     julia> string(1 + 2)
     "3"
 ```
 
-There are a number useful features unique to interactive work. In addition to showing the result, the REPL also binds the result to the variable ``ans``.  A trailing semicolon on the line can be used as a flag to suppress showing the result.
+这里有许多独特的特点可以来进行交互工作。除了显示结果外，REPL 同样将结果绑定到变量 ``ans``。 在该行尾部的分号可以用作一个标志来抑制显示结果。
 
 
 ```
@@ -43,10 +45,10 @@ There are a number useful features unique to interactive work. In addition to sh
     julia> ans
     "12"
 ```
-### Help mode
+### 帮助模式 
 
 
-When the cursor is at the beginning of the line, the prompt can be changed to a help mode by typing ``?``.  Julia will attempt to print help or documentation for anything entered in help mode:
+当指针在一行的开始位置时，敲击 ``?`` 提示将会变为帮助模式。Julia将会尝试打印在帮助模式中的帮助或是文档：
 
 ```
     julia> ? # upon typing ?, the prompt changes (in place) to: help>
@@ -57,7 +59,7 @@ When the cursor is at the beginning of the line, the prompt can be changed to a 
        Create a string from any values using the "print" function.
 ```
 
-In addition to function names, complete function calls may be entered to see which method is called for the given argument(s).  Macros, types and variables can also be queried:
+除了方法名，完成方法调用可以看到哪一个方法被指定的参数调用了。 宏,类型和变量也可以查询。
 
 ```
     help> string(1)
@@ -75,13 +77,13 @@ In addition to function names, complete function calls may be entered to see whi
       supertype: Any
       subtypes : {DirectIndexString,GenericString,RepString,RevString{T<:String},RopeString,SubString{T<:String},UTF16String,UTF8String}
 
-Help mode can be exited by pressing backspace at the beginning of the line.
+想要退出帮助模式可以在一行的开始按下退格键。
 ```
 
-### Shell mode
+### Shell 模式
 
 
-Just as help mode is useful for quick access to documentation, another common task is to use the system shell to execute system commands.  Just as ``?`` entered help mode when at the beginning of the line, a semicolon (``;``) will enter the shell mode.  And it can be exited by pressing backspace at the beginning of the line.
+帮助模式适用于快速访问文档，另一个常见任务是使用系统 Shell 来执行系统命令。就像当光标在一行的开始位置时 ``?`` 来进入帮助模式，使用分号 ``(;)`` 可以进入 shell 模式。并且想要退出 Shell 模式时可以在一行的开始按下退格键。
 
 ```
     julia> ; # upon typing ;, the prompt changes (in place) to: shell>
@@ -90,50 +92,50 @@ Just as help mode is useful for quick access to documentation, another common ta
     hello
 ```
 
-### Search modes
+### 查找模式
 
 
-In all of the above modes, the executed lines get saved to a history file, which can be searched.  To initiate an incremental search through the previous history, type ``^R`` — the control key together with the ``r`` key.  The prompt will change to ``(reverse-i-search)`':``, and as you type the search query will appear in the quotes.  The most recent result that matches the query will dynamically update to the right of the colon as more is typed.  To find an older result using the same query, simply type ``^R`` again.
+在所有以上的方法中，所有执行行会被保存到历史文件当中，并且能够被查找。为了初始化一个对先前历史的增量搜索，敲击 ``^R`` - control 键加上键盘上的 ``r`` 键。提示会被更改为 ``(reverse-i-search)':``，并且随着你敲击，查询请求将会出现在引用中。达到匹配要求的最近一次的结果将会被动态的更新的右面的控制台中。想要找到更老的结果就使用相同查询，然后再敲击 一次 ``^R``。
 
-Just as ``^R`` is a reverse search, ``^S`` is a forward search, with the prompt ``(i-search)`':``.  The two may be used in conjunction with each other to move through the previous or next matching results, respectively.
-
-
-## Key bindings
+``^R`` 是反向查询，而 ``^S`` 是正向查询，提示为 ``(i-search)':`` 。这两个可以相互结合使用来相对的移动到前一个或是后一个匹配结果。
 
 
-The Julia REPL makes great use of key bindings.  Several control-key bindings were already introduced above (``^D`` to exit, ``^R`` and ``^S`` for searching), but there are many more.  In addition to the control-key, there are also meta-key bindings.  These vary more by platform, but most terminals  default to using alt- or option- held down with a key to send the meta-key (or can be configured to do so).
+## 键绑定
+
+
+Julia REPL 很好的使用了键绑定功能。上面已经介绍了很多种控制键绑定（``^D`` 用来退出, ``^R`` 和 ``^S`` 用来查询），但是这里还有更多的键绑定。除了控制键，这里还有很多 meta-键绑定。这些键绑定因平台的不同而不同，但是大部分终端默认使用 alt- 或 option-选一个键来发送 meta-键（或是通过配置）
 
 |Program control| |
 |:----|:---|
-|^D	|Exit (when buffer is empty)|
-|^C	|Interrupt or cancel|
-|Return/Enter, ^J|	New line, executing if it is complete|
-|meta-Return/Enter|	Insert new line without executing it|
-|? or ;	|Enter help or shell mode (when at start of a line)|
-|^R, ^S|	Incremental history search, described above|
+|^D	|退出（当缓冲区为空）|
+|^C	|中断或是取消|
+|Return/Enter, ^J|	新的一行并且如果上一行已经完成则执行上一行|
+|meta-Return/Enter|	新的一行并且不执行|
+|? or ;	|进入帮助或是 Shell 模式（在一行的起始位置）|
+|^R, ^S|	增量历史搜索|
 |**Cursor movement**||
-|Right arrow, ^F	|Move right one character|
-|Left arrow, ^B|	Move left one character|
-|Home, ^A|	Move to beginning of line|
-|End, ^E|	Move to end of line|
-|^P	|Change to the previous or next history entry|
-|^N	|Change to the next history entry|
-|Up arrow|	Move up one line (or to the previous history entry)|
-|Down arrow|	Move down one line (or to the next history entry)|
-|Page-up	|Change to the previous history entry that matches the text before the cursor|
-|Page-down|	Change to the next history entry that matches the text before the cursor|
-|meta-F|	Move right one word|
-|meta-B	|Move left one word|
+|Right arrow, ^F	|向右移动一个字符|
+|Left arrow, ^B|	向左移动一个字符|
+|Home, ^A|	移动到该行的起始|
+|End, ^E|	移动到该行的末尾|
+|^P	|改变先前或下一个历史条目|
+|^N	|改变到下一个历史条目|
+|Up arrow|	移动到上面一行（或是先前的历史条目）|
+|Down arrow|	移动到下面一行（或是之后的历史条目）|
+|Page-up	|切换到上一条光标前的文本匹配的历史条目|
+|Page-down|	切换到下一条光标前的文本匹配的历史条目|
+|meta-F|向右移动一个词|
+|meta-B	|向左移动一个词|
 |**Editing**|
-|Backspace, ^H|	Delete the previous character|
-|Delete, ^D	|Forward delete one character (when buffer has text)|
-|meta-Backspace|	Delete the previous word|
-|meta-D|	Forward delete the next word|
-|^W	|Delete previous text up to the nearest whitespace|
-|^K	|“Kill” to end of line, placing the text in a buffer|
-|^Y	|“Yank” insert the text from the kill buffer|
-|^T	|Transpose the characters about the cursor|
-|Delete, ^D|	Forward delete one character (when buffer has text)|
+|Backspace, ^H|	删除前一个字符|
+|Delete, ^D	|向后删除一个字符（当缓冲区有文本时）|
+|meta-Backspace|删除前一个词|
+|meta-D|	向后删除一个词|
+|^W	|删除先前的直到最近的空白的所有文本|
+|^K	|"杀死"到行的末尾，将文本放至缓冲区|
+|^Y	|从 kill 缓冲区插入文本|
+|^T	|根据光标调换字符|
+|Delete, ^D|	向后删除一个字符（当缓冲区内有文本）|
 
 ### 自定义快捷键
 
