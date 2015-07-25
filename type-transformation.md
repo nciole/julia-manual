@@ -54,13 +54,11 @@ Julia 不做字符串和数字之间的类型转换。
 
     convert(::Type{Bool}, x::Number) = (x!=0)
 
-此方法第一个参数的类型是 :ref:`单态类型 <man-singleton-types>` ， ``Bool`` 是 ``Type{Bool}`` 的唯一实例。此方法仅在第一个参数是 ``Bool`` 才调用。
-Notice the syntax used for the first
-argument: the argument name is omitted prior to the ``::`` symbol, and only
-the type is given.  This is the syntax in Julia for a function argument whose type is
-specified but whose value is never used in the function body.  In this example,
-since the type is a singleton, there would never be any reason to use its value
-within the body.
+此方法第一个参数的类型是 :ref:`单态类型 <man-singleton-types>` ， ``Bool`` 是 ``Type{Bool}`` 的唯一实例。此方法仅在第一个参数是 ``Bool`` 才调用。  
+
+注意第一个参数使用的语法：参数的名称在  ``::`` 之前是省略的，只给出了参数的类型。这是朱丽亚中对于一个函数参数，如果其类型是
+指定但该参数的值在函数体中从未使用过，那么语法会被使用，在这个例子中，因为参数是单类类型，就永远不会有任何理由会在函数体中使用它的值。
+
 转换时检查数值是否为 0 ：
 
 
